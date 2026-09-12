@@ -1,0 +1,13 @@
+<% content_for :title, "Nuevo Activo - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Registrar Nuevo Activo (CMDB)</h1>
+    <p class="page-subtitle">Agregar equipo, servidor o periférico al inventario de TI</p>
+  </div>
+  <div>
+    <%= link_to "← Volver al inventario", assets_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<%= render "form", asset: @asset %>

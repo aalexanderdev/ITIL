@@ -1,0 +1,48 @@
+<%= form_with model: article, local: true do |f| %>
+  <% if article.errors.any? %>
+    <div class="alert alert-alert">
+      <strong>Por favor corrige los siguientes errores:</strong>
+      <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+        <% article.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Contenido del Artículo</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+          <%= f.label :title, "Título del Artículo / FAQ *", class: "form-label" %>
+          <%= f.text_field :title, required: true, placeholder: "Ej. Cómo configurar la VPN institucional en Windows", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :ticket_category_id, "Categoría Relacionada", class: "form-label" %>
+          <%= f.collection_select :ticket_category_id, TicketCategory.all, :id, :name, { prompt: "General" }, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :content, "Instrucciones y Procedimiento *", class: "form-label" %>
+        <%= f.text_area :content, required: true, rows: 12, placeholder: "Escriba aquí los pasos detallados para resolver el problema...", class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500; font-size: 0.875rem;">
+          <%= f.check_box :is_public %>
+          <span>Hacer visible para todos los usuarios finales en autoservicio</span>
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <%= f.submit article.new_record? ? "Publicar Artículo" : "Guardar Cambios", class: "btn btn-primary" %>
+        <%= link_to "Cancelar", kb_articles_path, class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

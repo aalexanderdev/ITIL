@@ -1,0 +1,92 @@
+<% content_for :title, "Estructura Organizacional - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Estructura Organizacional (Departamentos y Sedes)</h1>
+    <p class="page-subtitle">Configuración de entidades, sedes físicas y áreas de la empresa</p>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <%= link_to "+ Nuevo Departamento", new_department_path, class: "btn btn-primary btn-sm" %>
+    <%= link_to "+ Nueva Sede", new_location_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start;">
+  <!-- Departments List -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Departamentos (<%= @departments.count %>)</h2>
+      <%= link_to "+ Agregar", new_department_path, class: "btn btn-secondary btn-sm" %>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Sede</th>
+            <th>Usuarios</th>
+            <th>Activos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @departments.each do |dep| %>
+            <tr>
+              <td><strong><%= dep.code || "—" %></strong></td>
+              <td><%= dep.name %></td>
+              <td><%= dep.location&.name || "—" %></td>
+              <td><%= dep.users.count %></td>
+              <td><%= dep.assets.count %></td>
+              <td>
+                <div style="display: flex; gap: 0.25rem;">
+                  <%= link_to "Editar", edit_department_path(dep), class: "btn btn-secondary btn-sm" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Locations List -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Sedes y Ubicaciones Físicas (<%= @locations.count %>)</h2>
+      <%= link_to "+ Agregar", new_location_path, class: "btn btn-secondary btn-sm" %>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Detalle</th>
+            <th>Activos</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @locations.each do |loc| %>
+            <tr>
+              <td>
+                <strong><%= loc.name %></strong>
+              </td>
+              <td>
+                <div style="font-size: 0.8rem; color: var(--slate-600);">
+                  <%= loc.full_location %>
+                </div>
+              </td>
+              <td><%= loc.assets.count %></td>
+              <td>
+                <div style="display: flex; gap: 0.25rem;">
+                  <%= link_to "Editar", edit_location_path(loc), class: "btn btn-secondary btn-sm" %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

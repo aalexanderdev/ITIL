@@ -1,0 +1,125 @@
+<% content_for :title, "Inventario de Activos (CMDB) - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Inventario de Activos TI (CMDB)</h1>
+    <p class="page-subtitle">Gestión del parque informático, equipos, servidores y dispositivos de red</p>
+  </div>
+  <% if current_user.staff? %>
+    <div>
+      <%= link_to new_asset_path, class: "btn btn-primary" do %>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Registrar Activo</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Filters Bar -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <div class="card-body" style="padding: 1rem 1.25rem;">
+    <%= form_with url: assets_path, method: :get, local: true, style: "display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;" do |f| %>
+      <div style="flex: 1; min-width: 220px;">
+        <%= f.text_field :query, value: params[:query], placeholder: "Buscar por etiqueta, serie, modelo o IP...", class: "form-control" %>
+      </div>
+
+      <div style="width: 200px;">
+        <%= f.select :asset_type, options_for_select([["Todos los tipos", ""]] + Asset::ASSET_TYPES.invert.to_a, params[:asset_type]), {}, class: "form-control", onchange: "this.form.submit()" %>
+      </div>
+
+      <div style="width: 180px;">
+        <%= f.select :status, options_for_select([["Todos los estados", ""]] + Asset::STATUSES.invert.to_a, params[:status]), {}, class: "form-control", onchange: "this.form.submit()" %>
+      </div>
+
+      <div>
+        <%= f.submit "Filtrar", class: "btn btn-secondary btn-sm" %>
+        <%= link_to "Limpiar", assets_path, class: "btn btn-secondary btn-sm", style: "border: none; color: var(--slate-500);" if params.values.any?(&:present?) %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Assets Table -->
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Etiqueta / Tag</th>
+          <th>Nombre & Modelo</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Usuario Asignado</th>
+          <th>Ubicación / Sede</th>
+          <th>Dirección IP</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @assets.any? %>
+          <% @assets.each do |asset| %>
+            <tr>
+              <td>
+                <%= link_to asset.asset_tag, asset_path(asset), style: "font-weight: 700; color: var(--primary);" %>
+              </td>
+              <td>
+                <div style="font-weight: 600; color: var(--slate-900);"><%= asset.name %></div>
+                <div style="font-size: 0.775rem; color: var(--slate-500);">
+                  <%= asset.manufacturer %> <%= asset.model %>
+                  <% if asset.serial_number.present? %>
+                    • S/N: <%= asset.serial_number %>
+                  <% end %>
+                </div>
+              </td>
+              <td>
+                <span style="font-size: 0.8rem; font-weight: 500; color: var(--slate-700);">
+                  <%= asset.type_name %>
+                </span>
+              </td>
+              <td>
+                <span class="badge <%= asset.status_badge_class %>">
+                  <span class="badge-dot"></span>
+                  <%= asset.status_name %>
+                </span>
+              </td>
+              <td>
+                <% if asset.user %>
+                  <div style="font-weight: 500; font-size: 0.85rem;"><%= asset.user.full_name %></div>
+                  <div style="font-size: 0.725rem; color: var(--slate-400);"><%= asset.user.department&.name %></div>
+                <% else %>
+                  <span style="color: var(--slate-400); font-style: italic; font-size: 0.8rem;">En almacén / Libre</span>
+                <% end %>
+              </td>
+              <td>
+                <span style="font-size: 0.825rem; color: var(--slate-600);">
+                  <%= asset.location&.name || "Sin sede" %>
+                </span>
+              </td>
+              <td>
+                <% if asset.ip_address.present? %>
+                  <code><%= asset.ip_address %></code>
+                <% else %>
+                  <span style="color: var(--slate-400);">—</span>
+                <% end %>
+              </td>
+              <td>
+                <div style="display: flex; gap: 0.35rem;">
+                  <%= link_to "Ficha", asset_path(asset), class: "btn btn-secondary btn-sm" %>
+                  <% if current_user.staff? %>
+                    <%= link_to "Editar", edit_asset_path(asset), class: "btn btn-secondary btn-sm" %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 3rem; color: var(--slate-500);">
+              No se encontraron activos con los filtros indicados.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,219 @@
+<% content_for :title, "Panel de Control - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Bienvenido, <%= current_user.first_name || current_user.full_name %></h1>
+    <p class="page-subtitle">
+      Panel de control ITSM y gestión de inventario GLPI | Rol: <strong><%= current_user.role.titleize %></strong>
+    </p>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <%= link_to new_ticket_path, class: "btn btn-primary" do %>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Nueva Incidencia / Solicitud</span>
+    <% end %>
+    <% if current_user.staff? %>
+      <%= link_to new_asset_path, class: "btn btn-secondary" do %>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="12" y1="5" x2="12" y2="19"/></svg>
+        <span>Nuevo Activo</span>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<!-- KPI Metrics Grid -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon indigo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5H9a2 2 0 0 0-2 2v14l5-3 5 3V7a2 2 0 0 0-2-2Z"/></svg>
+    </div>
+    <div>
+      <div class="metric-value"><%= @open_tickets %></div>
+      <div class="metric-label">Tickets Abiertos</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon emerald">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div>
+      <div class="metric-value"><%= @solved_tickets %></div>
+      <div class="metric-label">Tickets Resueltos</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon rose">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div>
+      <div class="metric-value"><%= @critical_tickets %></div>
+      <div class="metric-label">Urgentes / Críticos</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon cyan">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+    </div>
+    <div>
+      <div class="metric-value"><%= @total_assets %></div>
+      <div class="metric-label">Activos en Inventario</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main 2-column layout -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+  <!-- Left Column: Tickets Recientes -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Tickets Recientes en Helpdesk</h2>
+      <%= link_to "Ver todos los tickets →", tickets_path, style: "font-size: 0.85rem; font-weight: 600;" %>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID / Número</th>
+            <th>Título & Categoría</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Solicitante</th>
+            <th>Técnico</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if @recent_tickets.any? %>
+            <% @recent_tickets.each do |ticket| %>
+              <tr>
+                <td>
+                  <strong style="color: var(--primary);"><%= ticket.ticket_number %></strong>
+                  <div style="font-size: 0.725rem; color: var(--slate-400);"><%= ticket.type_name %></div>
+                </td>
+                <td>
+                  <%= link_to ticket.title, ticket_path(ticket), style: "font-weight: 600; color: var(--slate-900);" %>
+                  <div style="font-size: 0.75rem; color: var(--slate-500);">
+                    <%= ticket.ticket_category&.name || "General" %>
+                    <% if ticket.asset %>
+                      • <span title="Activo relacionado">💻 <%= ticket.asset.asset_tag %></span>
+                    <% end %>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge <%= ticket.status_badge_class %>">
+                    <span class="badge-dot"></span>
+                    <%= ticket.status_name %>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge <%= ticket.priority_badge_class %>">
+                    <%= ticket.priority_name %>
+                  </span>
+                </td>
+                <td><%= ticket.requester&.full_name %></td>
+                <td>
+                  <% if ticket.assigned_to %>
+                    <span style="font-weight: 500;"><%= ticket.assigned_to.full_name %></span>
+                  <% else %>
+                    <span style="color: var(--slate-400); font-style: italic;">Sin asignar</span>
+                  <% end %>
+                </td>
+                <td>
+                  <%= link_to "Ver", ticket_path(ticket), class: "btn btn-secondary btn-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 2rem; color: var(--slate-500);">
+                No hay tickets registrados en el sistema.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Right Column: Sidebar Panels -->
+  <div>
+    <!-- Panel de Asignaciones Rápidas -->
+    <% if current_user.staff? %>
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Mis Tickets Asignados</h2>
+          <span class="badge badge-primary"><%= @my_tickets.count %></span>
+        </div>
+        <div class="card-body" style="padding: 1rem 1.25rem;">
+          <% if @my_tickets.any? %>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <% @my_tickets.each do |ticket| %>
+                <div style="padding-bottom: 0.75rem; border-bottom: 1px solid var(--slate-100);">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.25rem;">
+                    <%= link_to ticket.title, ticket_path(ticket), style: "font-weight: 600; font-size: 0.85rem; color: var(--slate-800);" %>
+                    <span class="badge <%= ticket.priority_badge_class %>" style="font-size: 0.7rem;"><%= ticket.priority_name %></span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--slate-500);">
+                    <span><%= ticket.ticket_number %></span>
+                    <span><%= time_ago_in_words(ticket.created_at) %></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p style="font-size: 0.825rem; color: var(--slate-500); text-align: center; padding: 1rem 0;">
+              ✨ ¡Al día! No tienes incidencias pendientes asignadas.
+            </p>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Estado del Parque de Activos (CMDB) -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Estado del Inventario</h2>
+        <%= link_to "Catálogo →", assets_path, style: "font-size: 0.85rem;" %>
+      </div>
+      <div class="card-body" style="padding: 1.25rem;">
+        <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+          <% Asset::STATUSES.each do |key, label| %>
+            <% count = @assets_by_status[key] || 0 %>
+            <% pct = @total_assets > 0 ? (count.to_f / @total_assets * 100).round : 0 %>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.825rem; margin-bottom: 0.25rem;">
+                <span style="font-weight: 600; color: var(--slate-700);"><%= label %></span>
+                <span style="font-weight: 700; color: var(--slate-900);"><%= count %> (<%= pct %>%)</span>
+              </div>
+              <div style="height: 6px; background: var(--slate-100); border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; width: <%= pct %>%; background: <%= key == 'in_use' ? '#10b981' : (key == 'in_stock' ? '#3b82f6' : '#f59e0b') %>; border-radius: 4px;"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accesos Directos a Documentación / KB -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Base de Conocimiento</h2>
+        <%= link_to "Ver Artículos", kb_articles_path, style: "font-size: 0.85rem;" %>
+      </div>
+      <div class="card-body" style="padding: 1.25rem;">
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.65rem;">
+          <% KbArticle.popular.limit(3).each do |article| %>
+            <li style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+              <span style="color: var(--primary);">📄</span>
+              <%= link_to article.title, kb_article_path(article), style: "color: var(--slate-700); font-weight: 500;" %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

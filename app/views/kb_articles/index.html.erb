@@ -1,0 +1,72 @@
+<% content_for :title, "Base de Conocimiento - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Base de Conocimiento (FAQ & Procedimientos)</h1>
+    <p class="page-subtitle">Guías de autoservicio, soluciones a problemas comunes y documentación técnica</p>
+  </div>
+  <% if current_user.staff? %>
+    <div>
+      <%= link_to new_kb_article_path, class: "btn btn-primary" do %>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Nuevo Artículo</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Search & Categories Bar -->
+<div class="card" style="margin-bottom: 1.5rem;">
+  <div class="card-body" style="padding: 1rem 1.25rem;">
+    <%= form_with url: kb_articles_path, method: :get, local: true, style: "display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;" do |f| %>
+      <div style="flex: 1; min-width: 250px;">
+        <%= f.text_field :query, value: params[:query], placeholder: "Buscar en manuales, guías y soluciones...", class: "form-control" %>
+      </div>
+
+      <div style="width: 220px;">
+        <%= f.select :category_id, options_for_select([["Todas las categorías", ""]] + @categories.map { |c| [c.name, c.id] }, params[:category_id]), {}, class: "form-control", onchange: "this.form.submit()" %>
+      </div>
+
+      <div>
+        <%= f.submit "Buscar", class: "btn btn-secondary btn-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Articles Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+  <% if @articles.any? %>
+    <% @articles.each do |article| %>
+      <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
+        <div class="card-body">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <span class="badge badge-primary" style="font-size: 0.725rem;">
+              <%= article.ticket_category&.name || "General" %>
+            </span>
+            <span style="font-size: 0.75rem; color: var(--slate-400);">
+              👁️ <%= article.views_count %> vistas
+            </span>
+          </div>
+
+          <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.65rem;">
+            <%= link_to article.title, kb_article_path(article), style: "color: var(--slate-900);" %>
+          </h3>
+
+          <p style="font-size: 0.85rem; color: var(--slate-600); line-height: 1.5; margin-bottom: 1rem;">
+            <%= truncate(article.content, length: 140) %>
+          </p>
+        </div>
+
+        <div style="padding: 0.85rem 1.5rem; background: var(--slate-50); border-top: 1px solid var(--slate-100); display: flex; justify-content: space-between; align-items: center; font-size: 0.775rem; color: var(--slate-500);">
+          <span>Por <%= article.user&.full_name %></span>
+          <%= link_to "Leer artículo →", kb_article_path(article), style: "font-weight: 600; color: var(--primary);" %>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div style="grid-column: 1 / -1; padding: 3rem; background: var(--white); border-radius: var(--radius-lg); text-align: center; color: var(--slate-500); border: 1px solid var(--slate-200);">
+      No se encontraron artículos que coincidan con la búsqueda.
+    </div>
+  <% end %>
+</div>

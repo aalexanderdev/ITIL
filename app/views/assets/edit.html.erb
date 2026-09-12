@@ -1,0 +1,13 @@
+<% content_for :title, "Editar Activo #{@asset.asset_tag} - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Editar Activo <%= @asset.asset_tag %></h1>
+    <p class="page-subtitle"><%= @asset.name %></p>
+  </div>
+  <div>
+    <%= link_to "← Volver a la ficha", asset_path(@asset), class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<%= render "form", asset: @asset %>

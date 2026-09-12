@@ -1,0 +1,60 @@
+<% content_for :title, "Usuarios y Roles - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Gestión de Usuarios y Roles</h1>
+    <p class="page-subtitle">Administración de accesos, perfiles técnicos y autoservicio</p>
+  </div>
+  <div>
+    <%= link_to new_user_path, class: "btn btn-primary" do %>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Nuevo Usuario</span>
+    <% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre Completo</th>
+          <th>Correo Electrónico</th>
+          <th>Rol / Perfil</th>
+          <th>Departamento</th>
+          <th>Teléfono</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td>
+              <div style="font-weight: 600; color: var(--slate-900);"><%= user.full_name %></div>
+            </td>
+            <td><%= user.email_address %></td>
+            <td>
+              <span class="badge <%= user.admin? ? 'badge-primary' : (user.technician? ? 'badge-info' : 'badge-secondary') %>">
+                <%= user.role.titleize %>
+              </span>
+            </td>
+            <td><%= user.department&.name || "—" %></td>
+            <td><%= user.phone || "—" %></td>
+            <td>
+              <span class="badge <%= user.active? ? 'badge-success' : 'badge-danger' %>">
+                <%= user.active? ? 'Activo' : 'Inactivo' %>
+              </span>
+            </td>
+            <td>
+              <div style="display: flex; gap: 0.35rem;">
+                <%= link_to "Perfil", user_path(user), class: "btn btn-secondary btn-sm" %>
+                <%= link_to "Editar", edit_user_path(user), class: "btn btn-secondary btn-sm" %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

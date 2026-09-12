@@ -1,0 +1,13 @@
+<% content_for :title, "Nuevo Artículo - Base de Conocimiento" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Nuevo Artículo de Base de Conocimiento</h1>
+    <p class="page-subtitle">Documentar solución, tutorial o procedimiento técnico</p>
+  </div>
+  <div>
+    <%= link_to "← Volver", kb_articles_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<%= render "form", article: @article %>

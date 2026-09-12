@@ -1,0 +1,146 @@
+<%= form_with model: asset, local: true do |f| %>
+  <% if asset.errors.any? %>
+    <div class="alert alert-alert">
+      <strong>Por favor corrige los siguientes errores:</strong>
+      <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+        <% asset.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Datos Principales del Activo</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :asset_tag, "Código / Etiqueta de Activo", class: "form-label" %>
+          <%= f.text_field :asset_tag, placeholder: "Dejar en blanco para auto-generar", class: "form-control" %>
+          <small style="color: var(--slate-500); font-size: 0.75rem;">Ej. PC-00101 o NET-0024</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :name, "Nombre del Dispositivo *", class: "form-label" %>
+          <%= f.text_field :name, required: true, placeholder: "Ej. Laptop Dell Latitude 5420", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :asset_type, "Tipo de Activo *", class: "form-label" %>
+          <%= f.select :asset_type, Asset::ASSET_TYPES.invert.to_a, {}, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :status, "Estado Operativo *", class: "form-label" %>
+          <%= f.select :status, Asset::STATUSES.invert.to_a, {}, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :manufacturer, "Fabricante / Marca", class: "form-label" %>
+          <%= f.text_field :manufacturer, placeholder: "Ej. Dell, HP, Cisco, Lenovo", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :model, "Modelo Exacto", class: "form-label" %>
+          <%= f.text_field :model, placeholder: "Ej. ThinkPad T14 Gen 3", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :serial_number, "Número de Serie (S/N)", class: "form-label" %>
+          <%= f.text_field :serial_number, placeholder: "Ej. 5CD239109X", class: "form-control" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Asignación y Ubicación Física</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :user_id, "Usuario Responsable / Custodio", class: "form-label" %>
+          <%= f.collection_select :user_id, User.all, :id, :display_name, { prompt: "Sin asignar (En almacén/Común)" }, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :department_id, "Departamento", class: "form-label" %>
+          <%= f.collection_select :department_id, Department.all, :id, :name, { prompt: "Seleccionar departamento..." }, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :location_id, "Sede / Ubicación Física", class: "form-label" %>
+          <%= f.collection_select :location_id, Location.all, :id, :full_location, { prompt: "Seleccionar ubicación..." }, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Parámetros de Red y Especificaciones Técnicas</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :ip_address, "Dirección IP", class: "form-label" %>
+          <%= f.text_field :ip_address, placeholder: "192.168.1.100", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :mac_address, "Dirección MAC", class: "form-label" %>
+          <%= f.text_field :mac_address, placeholder: "00:1A:2B:3C:4D:5E", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :operating_system, "Sistema Operativo", class: "form-label" %>
+          <%= f.text_field :operating_system, placeholder: "Windows 11 Pro / Ubuntu 24.04", class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :cpu, "Procesador (CPU)", class: "form-label" %>
+          <%= f.text_field :cpu, placeholder: "Intel Core i7-1185G7 @ 3.0GHz", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :ram_gb, "Memoria RAM (GB)", class: "form-label" %>
+          <%= f.number_field :ram_gb, placeholder: "16", min: 1, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :storage_capacity, "Almacenamiento / Disco", class: "form-label" %>
+          <%= f.text_field :storage_capacity, placeholder: "512 GB NVMe SSD", class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :purchase_date, "Fecha de Compra", class: "form-label" %>
+          <%= f.date_field :purchase_date, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :warranty_expiry, "Vencimiento de Garantía", class: "form-label" %>
+          <%= f.date_field :warranty_expiry, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :notes, "Notas y Observaciones", class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, placeholder: "Accesorios incluidos, historial de reemplazos o condiciones físicas...", class: "form-control" %>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <%= f.submit asset.new_record? ? "Registrar Activo" : "Guardar Cambios", class: "btn btn-primary" %>
+        <%= link_to "Cancelar", asset.new_record? ? assets_path : asset_path(asset), class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

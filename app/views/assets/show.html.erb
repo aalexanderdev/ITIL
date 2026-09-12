@@ -1,0 +1,256 @@
+<% content_for :title, "#{@asset.asset_tag}: #{@asset.name} - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+      <span style="font-weight: 800; color: var(--primary); font-size: 1.15rem;"><%= @asset.asset_tag %></span>
+      <span class="badge <%= @asset.status_badge_class %>">
+        <span class="badge-dot"></span>
+        <%= @asset.status_name %>
+      </span>
+      <span class="badge badge-secondary">
+        <%= @asset.type_name %>
+      </span>
+    </div>
+    <h1 class="page-title"><%= @asset.name %></h1>
+    <p class="page-subtitle"><%= @asset.manufacturer %> <%= @asset.model %></p>
+  </div>
+
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <%= link_to new_ticket_path(asset_id: @asset.id), class: "btn btn-primary btn-sm" do %>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Reportar Incidencia sobre este Activo</span>
+    <% end %>
+
+    <% if current_user.staff? %>
+      <%= link_to "✏️ Editar", edit_asset_path(@asset), class: "btn btn-secondary btn-sm" %>
+      <% if current_user.admin? %>
+        <%= button_to asset_path(@asset), method: :delete, data: { turbo_confirm: "¿Estás seguro de eliminar este activo del inventario?" }, class: "btn btn-danger btn-sm" do %>
+          <span>🗑️ Eliminar</span>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%= link_to "← Volver al inventario", assets_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+  <!-- Left Column: Specs & Network Info -->
+  <div>
+    <!-- Hardware Specifications Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Especificaciones Técnicas de Hardware</h2>
+      </div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Fabricante</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <%= @asset.manufacturer.presence || "No especificado" %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Modelo</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <%= @asset.model.presence || "No especificado" %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Número de Serie (S/N)</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <code><%= @asset.serial_number.presence || "S/N no registrado" %></code>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Sistema Operativo</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <%= @asset.operating_system.presence || "N/A" %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Procesador (CPU)</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <%= @asset.cpu.presence || "N/A" %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Memoria RAM</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <%= @asset.ram_gb ? "#{@asset.ram_gb} GB" : "N/A" %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Almacenamiento</span>
+            <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem; margin-top: 2px;">
+              <%= @asset.storage_capacity.presence || "N/A" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Network Configuration Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Parámetros de Red y Conectividad</h2>
+      </div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Dirección IPv4</span>
+            <div style="font-weight: 600; color: var(--slate-900); margin-top: 2px;">
+              <% if @asset.ip_address.present? %>
+                <code><%= @asset.ip_address %></code>
+              <% else %>
+                <span style="color: var(--slate-400);">No asignada</span>
+              <% end %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Dirección Física (MAC)</span>
+            <div style="font-weight: 600; color: var(--slate-900); margin-top: 2px;">
+              <% if @asset.mac_address.present? %>
+                <code><%= @asset.mac_address %></code>
+              <% else %>
+                <span style="color: var(--slate-400);">No registrada</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial & Warranty Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Información Financiera y Garantía</h2>
+      </div>
+      <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1rem;">
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Fecha de Adquisición</span>
+            <div style="font-weight: 600; color: var(--slate-900); margin-top: 2px;">
+              <%= @asset.purchase_date&.strftime("%d/%m/%Y") || "No registrada" %>
+            </div>
+          </div>
+
+          <div>
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Vencimiento de Garantía</span>
+            <div style="font-weight: 600; color: var(--slate-900); margin-top: 2px;">
+              <%= @asset.warranty_expiry&.strftime("%d/%m/%Y") || "No registrada" %>
+            </div>
+          </div>
+        </div>
+
+        <% if @asset.notes.present? %>
+          <div style="border-top: 1px solid var(--slate-100); padding-top: 0.75rem;">
+            <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Notas y Observaciones</span>
+            <p style="font-size: 0.875rem; color: var(--slate-700); margin-top: 4px;"><%= @asset.notes %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Related Tickets History -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Historial de Incidencias y Mantenimiento (<%= @ticket_history.count %>)</h2>
+        <%= link_to "+ Crear Incidencia", new_ticket_path(asset_id: @asset.id), class: "btn btn-primary btn-sm" %>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Ticket</th>
+              <th>Título</th>
+              <th>Estado</th>
+              <th>Prioridad</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if @ticket_history.any? %>
+              <% @ticket_history.each do |ticket| %>
+                <tr>
+                  <td><%= link_to ticket.ticket_number, ticket_path(ticket), style: "font-weight: 700; color: var(--primary);" %></td>
+                  <td><%= link_to ticket.title, ticket_path(ticket), style: "color: var(--slate-900); font-weight: 500;" %></td>
+                  <td>
+                    <span class="badge <%= ticket.status_badge_class %>">
+                      <%= ticket.status_name %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge <%= ticket.priority_badge_class %>">
+                      <%= ticket.priority_name %>
+                    </span>
+                  </td>
+                  <td><%= ticket.created_at.strftime("%d/%m/%Y") %></td>
+                </tr>
+              <% end %>
+            <% else %>
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--slate-500);">
+                  Este activo no tiene incidencias ni solicitudes registradas.
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Custody, Department & Location -->
+  <div>
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Asignación y Custodia</h2>
+      </div>
+      <div class="card-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Usuario Custodio</span>
+          <% if @asset.user %>
+            <div style="font-weight: 700; color: var(--slate-900); font-size: 1rem; margin-top: 2px;">
+              <%= @asset.user.full_name %>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--slate-500);">
+              <%= @asset.user.email_address %>
+            </div>
+            <% if @asset.user.phone.present? %>
+              <div style="font-size: 0.8rem; color: var(--slate-500);">
+                📞 <%= @asset.user.phone %>
+              </div>
+            <% end %>
+          <% else %>
+            <div style="color: var(--slate-500); font-style: italic; margin-top: 2px;">
+              Sin asignar a un usuario (Equipo en almacén o de uso compartido)
+            </div>
+          <% end %>
+        </div>
+
+        <div style="border-top: 1px solid var(--slate-100); padding-top: 1rem;">
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Departamento</span>
+          <div style="font-weight: 600; color: var(--slate-800); margin-top: 2px;">
+            <%= @asset.department&.name || "Sin departamento" %>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--slate-100); padding-top: 1rem;">
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Sede y Ubicación Física</span>
+          <div style="font-weight: 600; color: var(--slate-800); margin-top: 2px;">
+            <%= @asset.location&.full_location || "Sin ubicación registrada" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
