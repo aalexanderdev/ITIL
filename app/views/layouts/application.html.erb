@@ -11,8 +11,17 @@
     <%= yield :head %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <% if authenticated? %>
+      <%= stylesheet_link_tag "chat", "data-turbo-track": "reload" %>
+    <% end %>
+
     <%= javascript_importmap_tags %>
+
+    <% if authenticated? %>
+      <%= javascript_include_tag "chat", defer: true %>
+    <% end %>
   </head>
+
 
   <body>
     <% if authenticated? %>

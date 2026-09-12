@@ -11,7 +11,7 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 ### 1. Helpdesk & Service Desk (ITSM)
 - **Incident & Service Request Management**: Differentiate between unplanned interruptions (incidents) and routine user demands (service requests).
@@ -43,19 +43,28 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 - Technician workload inbox with assigned tickets.
 - Hardware asset distribution progress indicators (In Use, In Stock, Under Repair, Disposed).
 
+### 6. Native HelpdeskChat (Real-Time Communication & ITSM Alerts)
+- **Floating Widget**: Floating launcher with badge indicator, conversation search, user filtering, and collapsible panel.
+- **Thread Modes**: Direct 1-on-1 messaging, department/group chat rooms, and a dedicated personal "System Notifications" stream.
+- **Automated Lifecycle Notifications**: Automatic notices pushed to technicians and requesters on ticket creation, assignment, resolution, comments, and private notes.
+- **Message-to-Ticket Conversion**: Technicians can convert incoming chat messages directly into formal support tickets with pre-filled descriptions and category matching.
+- **Presence & Collaboration**: Live heartbeat status (online/offline), typing indicators, double-check read receipts, and message emoji reactions.
+- **Zero External Overhead**: 100% native Rails 8 Active Record implementation without external Redis or third-party WebSocket server requirements.
+
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Backend**: [Ruby](https://www.ruby-lang.org) 3.4+ & [Ruby on Rails](https://rubyonrails.org) 8.1
 - **Database**: SQLite3 with WAL (Write-Ahead Logging) mode and Rails 8 Solid adapters (`solid_cache`, `solid_queue`, `solid_cable`)
 - **Frontend & Assets**: [Hotwire](https://hotwired.dev) (Turbo 8 + Stimulus), [Propshaft](https://github.com/rails/propshaft) Asset Pipeline, and bespoke Vanilla CSS design tokens with *Plus Jakarta Sans* typography
 - **Authentication**: Native Rails 8 authentication with `BCrypt` password hashing and secure HTTP-only sessions
+- **Chat & Real-Time**: Native HelpdeskChat engine with presence heartbeat, read receipts, and ITSM hook dispatchers
 - **Testing**: Minitest test suite with ActiveSupport integration tests
 
 ---
 
-## 📦 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Ruby** 3.4.0 or higher
@@ -91,7 +100,7 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 
 ---
 
-## 🔑 Demo & Test Credentials
+## Demo & Test Credentials
 
 The database seeds populate the application with pre-configured accounts across all roles:
 
@@ -106,7 +115,7 @@ The database seeds populate the application with pre-configured accounts across 
 
 ---
 
-## 🧪 Running Automated Tests
+## Running Automated Tests
 
 Run the complete test suite (unit models, controllers, and integration flows):
 
@@ -116,28 +125,42 @@ bin/rails test
 
 All tests should pass with 0 failures and 0 errors:
 ```text
-Running 24 tests in a single process
-24 runs, 86 assertions, 0 failures, 0 errors, 0 skips
+Running 41 tests in a single process
+41 runs, 155 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 ├── app/
-│   ├── assets/stylesheets/application.css  # Core design system
+│   ├── assets/stylesheets/
+│   │   ├── application.css                 # Core design system
+│   │   └── chat.css                        # HelpdeskChat styles & variables
 │   ├── controllers/
 │   │   ├── assets_controller.rb            # ITAM / CMDB management
+│   │   ├── chat/                           # Native HelpdeskChat controllers
+│   │   │   ├── base_controller.rb
+│   │   │   ├── conversations_controller.rb
+│   │   │   ├── messages_controller.rb
+│   │   │   ├── presence_controller.rb
+│   │   │   ├── tickets_controller.rb
+│   │   │   └── token_controller.rb
 │   │   ├── dashboard_controller.rb         # Real-time metrics
 │   │   ├── kb_articles_controller.rb       # Knowledge Base
 │   │   ├── sessions_controller.rb          # Authentication
 │   │   ├── ticket_updates_controller.rb    # Timeline follow-ups & tasks
 │   │   └── tickets_controller.rb           # Helpdesk & ITIL workflow
+│   ├── javascript/
+│   │   └── chat.js                         # HelpdeskChat UI engine & event loop
 │   ├── models/
 │   │   ├── asset.rb                        # Hardware asset model
+│   │   ├── chat_conversation.rb            # Direct, group, and self threads
+│   │   ├── chat_message.rb                 # Chat messages with reactions
+│   │   ├── chat_presence.rb                # Online/offline presence heartbeats
 │   │   ├── ticket.rb                       # Ticket with ITIL matrix & SLA
-│   │   ├── ticket_update.rb                # Timeline updates
+│   │   ├── ticket_update.rb                # Timeline updates & notice hooks
 │   │   └── user.rb                         # RBAC model (admin/tech/user)
 │   └── views/                              # Responsive view templates
 ├── config/                                 # Routes, environments & Solid config
@@ -150,6 +173,6 @@ Running 24 tests in a single process
 
 ---
 
-## 📄 License
+## License
 
 This project is open-source software licensed under the [GNU General Public License v3.0](LICENSE).

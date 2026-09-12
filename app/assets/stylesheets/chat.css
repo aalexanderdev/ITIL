@@ -1,0 +1,1644 @@
+@import url("https://fonts.googleapis.com/css2?family=Encode+Sans:wght@400;600;700&family=Roboto:wght@300;400;700&display=swap");
+
+/* ---------- Brand palette ---------- */
+.plugin-chat-launcher,
+.plugin-chat-panel,
+.plugin-chat-backdrop,
+.plugin-chat-shortcut-btn {
+  --chat-teal: #00aec3;
+  --chat-teal-dark: #00889a;
+  --chat-grey: #838383;
+  --chat-grey-light: #e5e5e5;
+  --chat-black: #000000;
+  --chat-pink: #e81f76;
+  --chat-bg: #eef2f3;
+  --chat-font-heading: "Encode Sans", sans-serif;
+  --chat-font-body: "Roboto", sans-serif;
+  --chat-header-height: 3.5rem;
+
+  /* Configurable from Setup > Plugins > Chat > Apariencia (see
+       front/config.form.php). Overridden per-instance as an inline
+       style on .plugin-chat-panel itself once ajax/token.php resolves
+       (see applyAppearance() in chat.js) - these declarations here are
+       only the fallback shown before that first response lands, and for
+       any element that doesn't get the inline override at all. */
+  --chat-panel-width: 380px;
+  --chat-bubble-color: var(--chat-teal);
+  --chat-mention-color: var(--chat-teal-dark);
+  --chat-launcher-color: var(--chat-teal);
+  --chat-font-scale: 1;
+}
+
+.plugin-chat-panel[data-font-size="small"] {
+  --chat-font-scale: 0.85;
+}
+
+.plugin-chat-panel[data-font-size="normal"] {
+  --chat-font-scale: 1;
+}
+
+.plugin-chat-panel[data-font-size="medium"] {
+  --chat-font-scale: 1.15;
+}
+
+.plugin-chat-panel[data-font-size="large"] {
+  --chat-font-scale: 1.3;
+}
+
+.plugin-chat-panel[data-font-size="xlarge"] {
+  --chat-font-scale: 1.45;
+}
+
+/* ---------- Collapsed button ---------- */
+.plugin-chat-launcher {
+  position: fixed;
+  bottom: 150px;
+  right: 30px;
+  z-index: 9999;
+}
+
+.plugin-chat-launcher-btn {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--chat-launcher-color, var(--chat-teal));
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s ease,
+    filter 0.15s ease;
+}
+
+.plugin-chat-launcher-btn:hover {
+  background: var(--chat-launcher-color, var(--chat-teal));
+  filter: brightness(0.88);
+}
+
+.plugin-chat-launcher-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--chat-pink);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 6px;
+  font-weight: bold;
+  font-family: var(--chat-font-body);
+}
+
+/* ---------- Optional shortcut button (above the chat launcher, or
+   docked in the panel header - to the left of the gear icon - while the
+   panel is open) ---------- */
+.plugin-chat-shortcut-btn {
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chat-launcher-color, var(--chat-teal));
+  background: transparent;
+  padding: 0;
+}
+
+.plugin-chat-shortcut-btn.is-floating {
+  position: fixed;
+  bottom: 214px;
+  right: 30px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  z-index: 9999;
+}
+
+.plugin-chat-shortcut-btn.is-floating:hover {
+  background: var(--chat-launcher-color, var(--chat-teal));
+  color: #fff;
+}
+
+.plugin-chat-shortcut-btn.is-docked svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Popover menu for when 2+ shortcut buttons are visible. Positioned via
+   inline left/top-or-bottom styles set in JS (openShortcutMenu) since
+   the anchor button itself moves between two very different places
+   (floating vs. docked in the header) and a fixed CSS anchor can't
+   follow both - see the comment there for the full reasoning. */
+.plugin-chat-shortcut-menu {
+  position: fixed;
+  z-index: 10000;
+  min-width: 180px;
+  max-width: 260px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.plugin-chat-shortcut-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 9px 10px;
+  border-radius: 6px;
+  font-family: var(--chat-font-body);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+  cursor: pointer;
+}
+
+.plugin-chat-shortcut-menu-item:hover {
+  background: var(--chat-grey-light, #eee);
+}
+
+/* ---------- Dark backdrop behind the panel ---------- */
+.plugin-chat-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 9998;
+}
+
+/* ---------- Panel: vertical column anchored to the right edge ---------- */
+.plugin-chat-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
+  /* clamp() is a second, CSS-level safety net on top of the
+       320-420px bounds already enforced server-side
+       (PLUGIN_CHAT_MIN_PANEL_WIDTH_PX/_MAX_ in ajax/_bootstrap.php) and
+       client-side (the number input's min/max in
+       front/config.form.php) - so even a --chat-panel-width value set
+       directly via devtools/an old cached response can't push the panel
+       outside the range this layout was designed for. */
+  width: clamp(320px, var(--chat-panel-width, 380px), 420px);
+  max-width: 92vw;
+  background: var(--chat-bg);
+  border-left: 1px solid var(--chat-grey-light);
+  box-shadow: -6px 0 28px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: var(--chat-font-body);
+  font-size: calc(14px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+}
+
+/* Docked ("fijado") - the panel visually looks like part of the page
+   layout now, not a floating overlay sitting on top of it, so the drop
+   shadow (appropriate for an overlay) is dropped in favor of just the
+   existing border-left. See applyPinnedState()/applyPinnedLayout() in
+   chat.js for the body-margin half of this (making room on the page). */
+.plugin-chat-panel.is-pinned {
+  box-shadow: none;
+}
+
+/* Reserves space for the docked panel so page content doesn't render
+   underneath it - set/cleared from applyPinnedLayout() in chat.js rather
+   than being a static rule, since the margin has to match the
+   Super-Admin-configured panel width (320-420px, see Apariencia), not a
+   fixed value. The transition only matters for the brief moment right
+   after toggling pin on/off; it's harmless the rest of the time since
+   the property isn't changing. */
+body.plugin-chat-pinned-active {
+  transition: margin-right 0.2s ease;
+}
+
+.plugin-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--chat-header-height, 3.5rem);
+  min-height: var(--chat-header-height, 3.5rem);
+  max-height: var(--chat-header-height, 3.5rem);
+  box-sizing: border-box;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--chat-grey-light);
+  flex-shrink: 0;
+}
+
+.plugin-chat-header-spacer {
+  flex: 1;
+}
+
+.plugin-chat-icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--chat-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  padding: 0;
+}
+
+.plugin-chat-icon-btn:hover {
+  background: var(--chat-grey-light);
+}
+
+.plugin-chat-icon-btn-chip {
+  background: var(--chat-grey-light);
+}
+
+/* Header-button variant of the star button (see renderStarButton() in
+   chat.js) - keeps the active teal tint when featured so the header
+   and conversation-row buttons agree visually. */
+.plugin-chat-star.is-featured {
+  color: var(--chat-teal);
+}
+
+/* Pin/dock toggle in the panel header (next to the close button) -
+   tints teal when active, matching the conventions used for the star
+   button's is-featured state elsewhere in this file, so the two toggle-
+   style icon buttons in this UI read consistently. */
+.plugin-chat-pin-btn.is-active {
+  color: var(--chat-teal);
+  background: rgba(0, 174, 195, 0.12);
+}
+
+.plugin-chat-back {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: calc(16px * var(--chat-font-scale, 1));
+  padding: 4px 8px;
+  color: var(--chat-black);
+}
+
+.plugin-chat-search,
+.plugin-chat-user-search {
+  margin: 12px 16px;
+  padding: 9px 12px;
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 8px;
+  width: calc(100% - 48px);
+  background: #fff;
+  font-family: var(--chat-font-body);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+}
+
+/* Main list views with their own scroll */
+.plugin-chat-list-view,
+.plugin-chat-new-view {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.plugin-chat-section {
+  border-top: 1px solid var(--chat-grey-light);
+}
+
+.plugin-chat-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #fff;
+  font-weight: 700;
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  letter-spacing: 0.04em;
+  color: var(--chat-grey);
+  font-family: var(--chat-font-heading);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.plugin-chat-section-header:hover {
+  background: var(--chat-bg);
+  color: var(--chat-black);
+}
+
+.plugin-chat-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plugin-chat-section-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chat-grey);
+  transition: transform 0.18s ease;
+}
+
+.plugin-chat-section.is-collapsed .plugin-chat-section-chevron {
+  transform: rotate(-90deg);
+}
+
+.plugin-chat-section.is-collapsed .plugin-chat-section-body {
+  display: none;
+}
+
+.plugin-chat-section-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Brief highlight applied by goToSection() (Ctrl+Alt+1-4, see chat.js) -
+   scrollIntoView() alone is invisible when every section already fits
+   on screen without scrolling (a short conversation list, or a tall
+   panel), so the shortcut would otherwise look like it does nothing.
+   Animates the HEADER specifically (not the outer .plugin-chat-section)
+   because the header already paints its own opaque white background on
+   top of everything below it - tinting the parent instead would just be
+   hidden behind that. The animation's own end value (#fff) matches the
+   header's normal background exactly, so it settles back without a
+   visible jump once the animation completes. */
+.plugin-chat-section-header.plugin-chat-section-flash {
+  animation: plugin-chat-section-flash 900ms ease-out;
+}
+
+@keyframes plugin-chat-section-flash {
+  0% {
+    background: rgba(0, 174, 195, 0.18);
+  }
+  100% {
+    background: #fff;
+  }
+}
+
+.plugin-chat-section-badge {
+  background: var(--chat-teal);
+  color: #fff;
+  border-radius: 999px;
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  min-width: 18px;
+  text-align: center;
+  padding: 2px 6px;
+  font-family: var(--chat-font-body);
+  font-weight: 700;
+}
+
+.plugin-chat-section-unread {
+  background: var(--chat-pink);
+  color: #fff;
+  border-radius: 999px;
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  min-width: 18px;
+  text-align: center;
+  padding: 2px 6px;
+  font-family: var(--chat-font-body);
+  font-weight: 700;
+}
+
+.plugin-chat-section-body {
+  padding: 4px 0;
+}
+
+/* Online users list: capped at max 10 users (~380px) before internal vertical scroll activates */
+.plugin-chat-section[data-section="online"] .plugin-chat-section-body {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.plugin-chat-empty {
+  padding: 10px 16px;
+  color: var(--chat-grey);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  text-align: center;
+}
+
+.plugin-chat-conv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.plugin-chat-conv-row:hover {
+  background: #fff;
+}
+
+/* Keyboard navigation (ArrowUp/ArrowDown after Ctrl+Alt+1-4, see
+   goToSection()/moveActiveRow() in chat.js) - a left accent bar plus a
+   light teal tint, deliberately distinct from the plain white :hover
+   background above so a mouse-hover and the keyboard-selected row never
+   look identical and get confused with each other when both are true
+   at once (e.g. moving the mouse over a different row than the one
+   Arrow keys currently have selected). */
+.plugin-chat-conv-row-active {
+  background: rgba(0, 174, 195, 0.1);
+  box-shadow: inset 3px 0 0 var(--chat-teal);
+}
+
+.plugin-chat-conv-row-active:hover {
+  background: rgba(0, 174, 195, 0.16);
+}
+
+.plugin-chat-conv-name {
+  color: var(--chat-black);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+}
+
+.plugin-chat-online-row {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.plugin-chat-online-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+  background: var(--chat-teal);
+  box-shadow: 0 0 0 2px rgba(0, 174, 195, 0.25);
+}
+
+.plugin-chat-conv-row-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plugin-chat-row-star {
+  width: 26px;
+  height: 26px;
+  color: var(--chat-grey);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.plugin-chat-conv-row:hover .plugin-chat-row-star {
+  opacity: 1;
+}
+
+.plugin-chat-row-star.is-featured {
+  opacity: 1;
+  color: var(--chat-teal);
+}
+
+.plugin-chat-star.is-featured {
+  color: var(--chat-teal);
+}
+
+.plugin-chat-conv-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.plugin-chat-conv-name-wrap .plugin-chat-conv-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plugin-chat-input:disabled {
+  background: var(--chat-bg);
+  color: var(--chat-grey);
+}
+
+.plugin-chat-conv-unread {
+  background: var(--chat-pink);
+  color: #fff;
+  border-radius: 999px;
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  padding: 2px 6px;
+  font-weight: 700;
+}
+
+.plugin-chat-thread-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--chat-grey-light);
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.plugin-chat-thread-avatar {
+  flex-shrink: 0;
+}
+
+.plugin-chat-thread-title-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.plugin-chat-thread-title {
+  font-weight: 600;
+  font-size: calc(14px * var(--chat-font-scale, 1));
+  font-family: var(--chat-font-heading);
+  color: var(--chat-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Avatars (initials) ---------- */
+.plugin-chat-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: var(--chat-teal);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--chat-font-heading);
+  font-weight: 700;
+  font-size: calc(13px * var(--chat-font-scale, 1));
+}
+
+.plugin-chat-message-avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  margin-top: 2px;
+}
+
+.plugin-chat-messages {
+  padding: 12px 16px;
+  overflow-y: auto;
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Date divider ---------- */
+.plugin-chat-date-divider {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 2px;
+  color: var(--chat-grey);
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  font-weight: 600;
+  font-family: var(--chat-font-heading);
+  text-transform: capitalize;
+}
+
+.plugin-chat-date-divider::before {
+  content: "";
+  width: 60px;
+  height: 1px;
+  background: var(--chat-grey-light);
+}
+
+/* ---------- Message rows ---------- */
+.plugin-chat-message-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.plugin-chat-message-row.mine {
+  justify-content: flex-end;
+}
+
+.plugin-chat-message-row.theirs {
+  justify-content: flex-start;
+}
+
+.plugin-chat-message-col {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+  min-width: 0;
+}
+
+.plugin-chat-message-row.mine .plugin-chat-message-col {
+  align-items: flex-end;
+}
+
+.plugin-chat-message-row.theirs .plugin-chat-message-col {
+  align-items: flex-start;
+}
+
+.plugin-chat-message-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+
+.plugin-chat-message {
+  max-width: 100%;
+  padding: 7px 11px;
+  border-radius: 12px;
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  word-break: break-word;
+  /* Preserves line breaks (Shift+Enter) and collapsible runs of spaces
+       from the original message, same as most chat apps - without this,
+       normal HTML whitespace rules collapse "\n" into nothing visually. */
+  white-space: pre-wrap;
+}
+
+.plugin-chat-message.theirs {
+  background: #fff;
+  color: var(--chat-black);
+}
+
+.plugin-chat-message.mine {
+  background: var(--chat-bubble-color, var(--chat-teal));
+  color: #fff;
+}
+
+/* Whole-bubble link (ticket assignment/conversion/resolution notices -
+   see the click handler in renderMessages(), public/js/chat.js). Subtle
+   on purpose - the message content itself already carries a distinct
+   emoji prefix (🎫/✅/📋), so this is a secondary "yes, this opens
+   something" cue, not the primary signal. */
+.plugin-chat-message.has-link {
+  cursor: pointer;
+}
+.plugin-chat-message.has-link:hover {
+  filter: brightness(0.96);
+}
+
+/* ---------- Emojis (Inline & Jumbomoji) ---------- */
+
+/* Emojis embedded in normal text: optical balance with standard sans-serif letters */
+.plugin-chat-inline-emoji {
+  font-size: 1.25em;
+  line-height: 1;
+  vertical-align: -0.12em;
+  display: inline-block;
+}
+
+/* Standalone emojis sent as sole response: transparent sticker-style without colored bubble */
+.plugin-chat-message.is-single-emoji,
+.plugin-chat-message.is-emoji-group {
+  background: transparent !important;
+  box-shadow: none;
+  padding: 2px 4px;
+}
+
+/* 1 single emoji */
+.plugin-chat-message.is-single-emoji {
+  font-size: calc(34px * var(--chat-font-scale, 1));
+  line-height: 1.15;
+}
+
+/* 2 or 3 emojis */
+.plugin-chat-message.is-emoji-group {
+  font-size: calc(24px * var(--chat-font-scale, 1));
+  line-height: 1.25;
+}
+
+/* Avoid compounding font sizes when inline spans are inside standalone emoji bubbles */
+.plugin-chat-message.is-single-emoji .plugin-chat-inline-emoji,
+.plugin-chat-message.is-emoji-group .plugin-chat-inline-emoji {
+  font-size: 1em;
+  vertical-align: baseline;
+}
+
+/* ---------- Reactions (👍) ---------- */
+
+/* Wraps just the bubble so the hover-reveal trigger button can be
+   positioned relative to it without affecting the bubble's own layout
+   (max-width, wrapping, etc). display:inline-flex so it hugs the
+   bubble's actual rendered width instead of stretching to the column's
+   full max-width - otherwise the trigger's left/right offset (which is
+   relative to THIS wrapper) would land far from the bubble on short
+   messages. */
+.plugin-chat-bubble-wrap {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.plugin-chat-react-trigger {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--chat-grey-light);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+/* Sits in the free space beside the bubble (.plugin-chat-message-col
+   caps bubbles at 78% width - see below - so there's always room),
+   left of "mine" bubbles and right of "theirs" so it never overlaps the
+   avatar or the read-receipt checkmark. */
+.plugin-chat-message-row.mine .plugin-chat-react-trigger {
+  right: calc(100% + 6px);
+}
+
+.plugin-chat-message-row.theirs .plugin-chat-react-trigger {
+  left: calc(100% + 6px);
+}
+
+/* Hovering anywhere in the row reveals it (not just the bubble itself) -
+   the row already spans the full panel width, so this comfortably
+   covers the gutter space the trigger sits in too. */
+.plugin-chat-message-row:hover .plugin-chat-react-trigger {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.plugin-chat-react-trigger:hover {
+  transform: translateY(-50%) scale(1.15);
+}
+
+.plugin-chat-reactions-row {
+  display: none;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.plugin-chat-reaction-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid var(--chat-grey-light);
+  background: #fff;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  line-height: 1.7;
+  cursor: pointer;
+  color: var(--chat-black);
+}
+
+.plugin-chat-reaction-pill:hover {
+  border-color: var(--chat-teal);
+}
+
+.plugin-chat-reaction-pill.mine {
+  background: rgba(0, 174, 195, 0.14);
+  border-color: var(--chat-teal);
+}
+
+.plugin-chat-reaction-pill:disabled {
+  cursor: default;
+  opacity: 0.85;
+}
+
+.plugin-chat-reaction-pill:disabled:hover {
+  border-color: var(--chat-grey-light);
+}
+
+.plugin-chat-reaction-count {
+  font-weight: 600;
+}
+
+.plugin-chat-message-author {
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  font-weight: 600;
+  color: var(--chat-black);
+  font-family: var(--chat-font-heading);
+}
+
+.plugin-chat-message-time {
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  color: var(--chat-grey);
+  opacity: 1;
+}
+
+/* ---------- Read receipts (✓ / ✓✓ / ✓✓ read) ---------- */
+.plugin-chat-message-receipt {
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.plugin-chat-message-receipt.is-sent,
+.plugin-chat-message-receipt.is-delivered {
+  color: var(--chat-grey);
+}
+
+.plugin-chat-message-receipt.is-read {
+  color: var(--chat-teal);
+}
+
+/* Group chats only: hints that right-click shows who read it */
+.plugin-chat-message.mine.plugin-chat-has-receipts {
+  cursor: context-menu;
+}
+
+.plugin-chat-receipts-panel {
+  position: fixed;
+  z-index: 100000;
+  min-width: 180px;
+  max-width: 260px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  padding: 8px 0;
+  font-family: var(--chat-font-body);
+}
+
+.plugin-chat-receipts-section + .plugin-chat-receipts-section {
+  border-top: 1px solid var(--chat-grey-light);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.plugin-chat-receipts-section-title {
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  font-weight: 700;
+  font-family: var(--chat-font-heading);
+  color: var(--chat-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 2px 14px 4px;
+}
+
+.plugin-chat-receipts-name {
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+  padding: 3px 14px;
+}
+
+.plugin-chat-receipts-empty {
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  color: var(--chat-grey);
+  padding: 4px 14px;
+}
+
+.plugin-chat-link {
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+/* ---------- "Convertir en ticket" (right-click panel) ---------- */
+
+.plugin-chat-ticket-convert-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 7px 14px;
+  font-family: var(--chat-font-body);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  font-weight: 600;
+  color: var(--chat-teal-dark, var(--chat-teal));
+  cursor: pointer;
+}
+
+.plugin-chat-ticket-convert-btn:hover {
+  background: var(--chat-grey-light);
+}
+
+.plugin-chat-ticket-convert-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.plugin-chat-ticket-categories {
+  padding: 2px 8px 4px 20px;
+}
+
+.plugin-chat-ticket-category-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 5px 6px;
+  border-radius: 6px;
+  font-family: var(--chat-font-body);
+  font-size: calc(12.5px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+  cursor: pointer;
+}
+
+.plugin-chat-ticket-category-btn:hover {
+  background: var(--chat-grey-light);
+}
+
+.plugin-chat-ticket-link {
+  display: block;
+  padding: 7px 14px;
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  font-weight: 600;
+  color: var(--chat-teal-dark, var(--chat-teal));
+  text-decoration: none;
+}
+
+.plugin-chat-ticket-link:hover {
+  text-decoration: underline;
+}
+
+.plugin-chat-message.theirs .plugin-chat-link {
+  color: var(--chat-teal-dark);
+}
+
+.plugin-chat-thread-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.plugin-chat-composer {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #fff;
+  border-top: 1px solid var(--chat-grey-light);
+  flex: 0 0 auto;
+  /* Default: bottom-aligned, matches the emoji+send column both
+       anchoring against the textarea's bottom edge. Switched to
+       'center' by .no-emoji below when there's no emoji button to
+       anchor against. */
+  align-items: flex-end;
+}
+
+/* Applied by applyEmojiAvailability() in chat.js whenever the emoji
+   trigger isn't shown (any of the 3 conditions failing) - re-centers
+   the lone send button vertically against the textarea instead of
+   leaving it bottom-anchored with an empty gap above it where the
+   emoji button would otherwise sit. */
+.plugin-chat-composer.no-emoji {
+  align-items: center;
+}
+
+.plugin-chat-composer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.plugin-chat-emoji-btn {
+  border: none;
+  background: transparent;
+  color: var(--chat-grey);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.plugin-chat-emoji-btn:hover {
+  background: var(--chat-grey-light);
+  color: var(--chat-black);
+}
+
+.plugin-chat-input {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 8px;
+  font-family: var(--chat-font-body);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  resize: none;
+  overflow-y: auto;
+  min-height: 76px;
+  max-height: 160px;
+  line-height: 1.4;
+}
+
+.plugin-chat-send {
+  border: none;
+  background: var(--chat-teal);
+  color: #fff;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.plugin-chat-send:hover {
+  background: var(--chat-teal-dark);
+}
+
+.plugin-chat-input-counter {
+  font-size: calc(10.5px * var(--chat-font-scale, 1));
+  font-family: var(--chat-font-body);
+  color: var(--chat-grey);
+  padding: 0 2px;
+  white-space: nowrap;
+  text-align: center;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.plugin-chat-input-counter.is-limit {
+  color: var(--chat-pink);
+  font-weight: 700;
+}
+
+/* The <emoji-picker> custom element itself (see loadEmojiPicker() in
+   chat.js) - a single instance, appended to document.body (not nested
+   inside the possibly-hidden thread view), positioned via inline
+   top/left set at open time by positionEmojiPicker(). Width/height
+   here have to match the constants used in that same function's math.
+   display:none by default - toggled by toggleEmojiPicker()/
+   closeEmojiPicker(), same show/hide pattern as the shortcuts help
+   panel. */
+.plugin-chat-emoji-picker {
+  display: none;
+  position: fixed;
+  width: 320px;
+  height: 360px;
+  z-index: 100000;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--chat-grey-light);
+}
+
+/* ---------- Keyboard shortcuts hint + help panel ---------- */
+
+/* Sits directly below the composer, inside the same white footer area
+   (not the messages background) - a plain <button> instead of a <div>
+   so it's keyboard-focusable/clickable without extra ARIA wiring, but
+   styled to read as a quiet caption line, not a call-to-action. */
+.plugin-chat-shortcuts-hint {
+  display: block;
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--chat-grey-light);
+  background: #fff;
+  color: var(--chat-grey);
+  font-family: var(--chat-font-body);
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  text-align: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.plugin-chat-shortcuts-hint:hover {
+  color: var(--chat-black);
+  background: var(--chat-bg);
+}
+
+.plugin-chat-shortcuts-hint-key {
+  color: var(--chat-teal);
+  font-weight: 600;
+}
+
+.plugin-chat-shortcuts-panel {
+  position: fixed;
+  z-index: 100000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  max-width: 88vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-family: var(--chat-font-body);
+}
+
+.plugin-chat-shortcuts-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 8px 10px 16px;
+  border-bottom: 1px solid var(--chat-grey-light);
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+
+.plugin-chat-shortcuts-panel-title {
+  font-family: var(--chat-font-heading);
+  font-weight: 700;
+  font-size: 0.95em;
+  color: var(--chat-black);
+}
+
+.plugin-chat-shortcuts-list {
+  padding: 8px 0;
+}
+
+.plugin-chat-shortcuts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 16px;
+}
+
+.plugin-chat-shortcuts-key {
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  font-weight: 600;
+  color: var(--chat-teal-dark, var(--chat-teal));
+  background: var(--chat-bg);
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 5px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+
+.plugin-chat-shortcuts-label {
+  flex: 1 1 auto;
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+  text-align: right;
+}
+
+/* ---------- @mentions ---------- */
+
+.plugin-chat-mention-suggestions {
+  display: none;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 100%;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.plugin-chat-mention-suggestion {
+  padding: 9px 14px;
+  cursor: pointer;
+  font-family: var(--chat-font-body);
+  font-size: calc(14px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+}
+
+.plugin-chat-mention-suggestion.is-active,
+.plugin-chat-mention-suggestion:hover {
+  background: var(--chat-grey-light);
+}
+
+/* ---------- :emoji autocomplete ---------- */
+
+.plugin-chat-emoji-suggestions {
+  display: none;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 100%;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px solid var(--chat-grey-light);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.plugin-chat-emoji-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--chat-font-body);
+  font-size: calc(13px * var(--chat-font-scale, 1));
+  color: var(--chat-black);
+  transition: background 0.1s ease;
+}
+
+.plugin-chat-emoji-suggestion.is-active,
+.plugin-chat-emoji-suggestion:hover {
+  background: var(--chat-grey-light);
+}
+
+.plugin-chat-emoji-suggestion .plugin-chat-emoji-glyph {
+  font-size: 1.35rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.plugin-chat-emoji-suggestion .plugin-chat-emoji-name {
+  font-weight: 600;
+  color: var(--chat-black);
+  font-family: monospace, sans-serif;
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  flex-shrink: 0;
+}
+
+.plugin-chat-emoji-suggestion .plugin-chat-emoji-desc {
+  color: var(--chat-grey-medium);
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: auto;
+}
+
+.plugin-chat-mention {
+  font-weight: 600;
+  color: var(--chat-mention-color, var(--chat-teal-dark, var(--chat-teal)));
+  border-radius: 4px;
+  padding: 1px 3px;
+  /* Static fallback (matches the original default mention color at
+       14% opacity) for browsers without color-mix() support - declared
+       BEFORE the color-mix() rule below on purpose: a browser that can't
+       parse color-mix() ignores that whole declaration and keeps this
+       one instead, it never partially applies it. */
+  background: rgba(0, 137, 154, 0.14);
+  background: color-mix(
+    in srgb,
+    var(--chat-mention-color, var(--chat-teal-dark, var(--chat-teal))) 14%,
+    transparent
+  );
+}
+
+.plugin-chat-message.mine .plugin-chat-mention {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- Typing indicator (thread view only) ---------- */
+.plugin-chat-typing-indicator {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  background: transparent;
+  font-size: calc(12px * var(--chat-font-scale, 1));
+  color: var(--chat-grey);
+  font-family: var(--chat-font-body);
+  font-style: italic;
+  flex: 0 0 auto;
+  min-height: 24px;
+}
+
+.plugin-chat-typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 2px;
+}
+
+.plugin-chat-typing-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--chat-teal);
+  display: inline-block;
+  animation: plugin-chat-typing-bounce 1.4s infinite ease-in-out both;
+}
+
+.plugin-chat-typing-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.plugin-chat-typing-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.plugin-chat-typing-dot:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes plugin-chat-typing-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* ---------- File attachments ---------- */
+.plugin-chat-composer-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+}
+
+.plugin-chat-attach-btn {
+  border: none;
+  background: transparent;
+  color: var(--chat-grey);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.plugin-chat-attach-btn:hover {
+  background: var(--chat-grey-light);
+  color: var(--chat-black);
+}
+
+.plugin-chat-staged-attachment {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f1f3f5;
+  border-radius: 6px;
+  border: 1px solid var(--chat-grey-light);
+  font-size: calc(12px * var(--chat-font-scale, 1));
+}
+
+.plugin-chat-staged-file-icon {
+  color: var(--chat-teal);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.plugin-chat-staged-file-name {
+  font-weight: 600;
+  color: var(--chat-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.plugin-chat-staged-file-size {
+  color: var(--chat-grey);
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  flex-shrink: 0;
+}
+
+.plugin-chat-staged-remove-btn {
+  border: none;
+  background: transparent;
+  color: var(--chat-grey);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+
+.plugin-chat-staged-remove-btn:hover {
+  color: var(--chat-pink);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.plugin-chat-attachment-image-wrap {
+  margin-bottom: 6px;
+  overflow: hidden;
+  border-radius: 8px;
+  max-width: 280px;
+}
+
+.plugin-chat-attachment-img {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 8px;
+  object-fit: cover;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.plugin-chat-attachment-img:hover {
+  transform: scale(1.02);
+  filter: brightness(0.95);
+}
+
+.plugin-chat-attachment-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 6px;
+  max-width: 280px;
+  transition: background 0.15s ease;
+}
+
+.plugin-chat-message.mine .plugin-chat-attachment-card {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.plugin-chat-attachment-card:hover {
+  background: rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+
+.plugin-chat-message.mine .plugin-chat-attachment-card:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.plugin-chat-attachment-file-icon {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.plugin-chat-attachment-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1;
+}
+
+.plugin-chat-attachment-name {
+  font-weight: 600;
+  font-size: calc(12.5px * var(--chat-font-scale, 1));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plugin-chat-attachment-size {
+  font-size: calc(11px * var(--chat-font-scale, 1));
+  opacity: 0.8;
+}
+
+.plugin-chat-attachment-download-icon {
+  flex-shrink: 0;
+  opacity: 0.7;
+  display: flex;
+  transition: opacity 0.15s;
+}
+
+.plugin-chat-attachment-card:hover .plugin-chat-attachment-download-icon {
+  opacity: 1;
+}
+
+.plugin-chat-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: plugin-chat-fade-in 0.18s ease-out;
+}
+
+.plugin-chat-lightbox-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.plugin-chat-lightbox-content img {
+  max-width: 90vw;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.plugin-chat-lightbox-close {
+  position: absolute;
+  top: -36px;
+  right: -8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.plugin-chat-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.plugin-chat-lightbox-caption {
+  margin-top: 8px;
+  color: #fff;
+  font-size: 13px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  max-width: 80vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plugin-chat-thread-view.is-dragging-file .plugin-chat-messages {
+  outline: 2px dashed var(--chat-teal);
+  outline-offset: -8px;
+  background-color: rgba(0, 112, 186, 0.04);
+}
+
+/* Prevent chat widget rendering in iframes, modal dialogs, or popup containers */
+body.in-modal #plugin-chat-launcher,
+body.in-modal #plugin-chat-panel,
+.modal #plugin-chat-launcher,
+.modal #plugin-chat-panel,
+.ui-dialog #plugin-chat-launcher,
+.ui-dialog #plugin-chat-panel {
+  display: none !important;
+}

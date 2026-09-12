@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_11_182016) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_12_180001) do
   create_table "assets", force: :cascade do |t|
     t.string "asset_tag", null: false
     t.string "asset_type", default: "computer", null: false
@@ -40,6 +40,61 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_182016) do
     t.index ["serial_number"], name: "index_assets_on_serial_number"
     t.index ["status"], name: "index_assets_on_status"
     t.index ["user_id"], name: "index_assets_on_user_id"
+  end
+
+  create_table "chat_conversation_users", force: :cascade do |t|
+    t.integer "chat_conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "is_featured", default: false, null: false
+    t.integer "last_read", default: 0, null: false
+    t.integer "last_typing", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["chat_conversation_id", "user_id"], name: "idx_chat_conv_users_unique", unique: true
+    t.index ["chat_conversation_id"], name: "index_chat_conversation_users_on_chat_conversation_id"
+    t.index ["user_id"], name: "index_chat_conversation_users_on_user_id"
+  end
+
+  create_table "chat_conversations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "department_id"
+    t.boolean "is_group", default: false, null: false
+    t.boolean "is_self", default: false, null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_chat_conversations_on_department_id"
+  end
+
+  create_table "chat_message_reactions", force: :cascade do |t|
+    t.integer "chat_message_id", null: false
+    t.datetime "created_at", null: false
+    t.string "emoji", default: "👍", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["chat_message_id", "user_id", "emoji"], name: "idx_chat_reactions_unique", unique: true
+    t.index ["chat_message_id"], name: "index_chat_message_reactions_on_chat_message_id"
+    t.index ["user_id"], name: "index_chat_message_reactions_on_user_id"
+  end
+
+  create_table "chat_messages", force: :cascade do |t|
+    t.integer "chat_conversation_id", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.string "link_url"
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["chat_conversation_id"], name: "index_chat_messages_on_chat_conversation_id"
+    t.index ["created_at"], name: "index_chat_messages_on_created_at"
+    t.index ["user_id"], name: "index_chat_messages_on_user_id"
+  end
+
+  create_table "chat_presences", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "last_seen", default: 0, null: false
+    t.string "status", default: "offline", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_chat_presences_on_user_id", unique: true
   end
 
   create_table "departments", force: :cascade do |t|
@@ -153,6 +208,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_182016) do
   add_foreign_key "assets", "departments"
   add_foreign_key "assets", "locations"
   add_foreign_key "assets", "users"
+  add_foreign_key "chat_conversation_users", "chat_conversations"
+  add_foreign_key "chat_conversation_users", "users"
+  add_foreign_key "chat_conversations", "departments"
+  add_foreign_key "chat_message_reactions", "chat_messages"
+  add_foreign_key "chat_message_reactions", "users"
+  add_foreign_key "chat_messages", "chat_conversations"
+  add_foreign_key "chat_messages", "users"
+  add_foreign_key "chat_presences", "users"
   add_foreign_key "departments", "locations"
   add_foreign_key "kb_articles", "ticket_categories"
   add_foreign_key "kb_articles", "users"

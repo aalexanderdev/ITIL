@@ -11,6 +11,12 @@ class User < ApplicationRecord
   has_many :ticket_updates, dependent: :destroy
   has_many :kb_articles, dependent: :nullify
 
+  # HelpdeskChat Associations
+  has_many :chat_conversation_users, dependent: :destroy
+  has_many :chat_conversations, through: :chat_conversation_users
+  has_many :chat_messages, dependent: :destroy
+  has_one :chat_presence, dependent: :destroy
+
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
@@ -45,5 +51,22 @@ class User < ApplicationRecord
 
   def display_name
     "#{full_name} (#{role.titleize})"
+  end
+
+  def online?
+    chat_presence&.online? || false
+  end
+
+  def self_chat_conversation
+    ChatConversation.find_or_create_self(self)
+  end
+
+  def send_system_chat_notice(content, link_url = nil)
+    conv = self_chat_conversation
+    conv.chat_messages.create!(
+      user: self,
+      content: content,
+      link_url: link_url
+    )
   end
 end

@@ -40,6 +40,9 @@ class Ticket < ApplicationRecord
   before_validation :calculate_priority
   before_validation :calculate_due_date, on: :create
 
+  after_create_commit :dispatch_create_chat_notice
+  after_update_commit :dispatch_update_chat_notice
+
   validates :ticket_number, presence: true, uniqueness: true
   validates :title, presence: true
   validates :description, presence: true
@@ -165,4 +168,35 @@ class Ticket < ApplicationRecord
             end
     self.due_at = Time.current + hours
   end
+
+  def dispatch_create_chat_notice
+    if assigned_to
+      assigned_to.send_system_chat_notice(
+        "📋 Asignación: Se te ha asignado el Ticket ##{ticket_number} - #{title}",
+        "/tickets/#{id}"
+      )
+    end
+  end
+
+  def dispatch_update_chat_notice
+    if saved_change_to_assigned_to_id? && assigned_to
+      assigned_to.send_system_chat_notice(
+        "📋 Asignación: Se te ha asignado el Ticket ##{ticket_number} - #{title}",
+        "/tickets/#{id}"
+      )
+    end
+
+    if saved_change_to_status? && status == "solved"
+      requester&.send_system_chat_notice(
+        "✅ Resolución: Tu ticket ##{ticket_number} ha sido resuelto: #{title}",
+        "/tickets/#{id}"
+      )
+    elsif saved_change_to_status? && status == "closed"
+      requester&.send_system_chat_notice(
+        "🔒 Cierre: El ticket ##{ticket_number} ha sido cerrado formalmente.",
+        "/tickets/#{id}"
+      )
+    end
+  end
 end
+

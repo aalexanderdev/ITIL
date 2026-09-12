@@ -21,5 +21,23 @@ Rails.application.routes.draw do
   resources :locations
   resources :ticket_categories
 
+  # HelpdeskChat Native Endpoints
+  scope "chat/ajax", module: :chat do
+    get "token", to: "token#show"
+    get "token.php", to: "token#show"
+
+    match "conversations", to: "conversations#handle", via: %i[get post]
+    match "conversations.php", to: "conversations#handle", via: %i[get post]
+
+    match "messages", to: "messages#handle", via: %i[get post]
+    match "messages.php", to: "messages#handle", via: %i[get post]
+
+    match "presence", to: "presence#handle", via: %i[get post]
+    match "presence.php", to: "presence#handle", via: %i[get post]
+
+    match "tickets", to: "tickets#handle", via: %i[get post]
+    match "tickets.php", to: "tickets#handle", via: %i[get post]
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

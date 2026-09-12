@@ -42,9 +42,14 @@ class TicketsController < ApplicationController
   end
 
   def new
-    @ticket = Ticket.new(ticket_type: params[:ticket_type] || "incident", urgency: 3, impact: 3)
+    initial_attrs = { ticket_type: params[:ticket_type] || "incident", urgency: 3, impact: 3 }
+    if params[:ticket].present?
+      initial_attrs.merge!(params.require(:ticket).permit(:title, :description, :ticket_category_id, :asset_id, :ticket_type))
+    end
+    @ticket = Ticket.new(initial_attrs)
     @ticket.asset_id = params[:asset_id] if params[:asset_id].present?
   end
+
 
   def create
     @ticket = Ticket.new(ticket_params)
