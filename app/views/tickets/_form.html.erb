@@ -1,0 +1,96 @@
+<%= form_with model: ticket, local: true do |f| %>
+  <% if ticket.errors.any? %>
+    <div class="alert alert-alert">
+      <strong>Por favor corrige los siguientes errores:</strong>
+      <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+        <% ticket.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Datos del Ticket</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :ticket_type, "Tipo de Ticket", class: "form-label" %>
+          <%= f.select :ticket_type, Ticket::TICKET_TYPES.invert.to_a, {}, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :ticket_category_id, "Categoría del Servicio", class: "form-label" %>
+          <%= f.collection_select :ticket_category_id, TicketCategory.all, :id, :name, { prompt: "Seleccionar categoría..." }, class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :asset_id, "Activo Relacionado (Opcional)", class: "form-label" %>
+          <%= f.collection_select :asset_id, Asset.all, :id, :display_name, { prompt: "Ningún activo específico" }, class: "form-control" %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :title, "Título o Asunto de la Incidencia / Solicitud", class: "form-label" %>
+        <%= f.text_field :title, required: true, placeholder: "Ej. Error al iniciar sesión en el portal ERP", class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :description, "Descripción Detallada", class: "form-label" %>
+        <%= f.text_area :description, required: true, rows: 5, placeholder: "Describa el comportamiento observado, mensajes de error, pasos para reproducir o detalles de la solicitud...", class: "form-control" %>
+      </div>
+
+      <!-- ITIL Urgencia e Impacto -->
+      <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+        <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin-bottom: 0.75rem;">
+          Matriz ITIL de Evaluación
+        </h4>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :urgency, "Urgencia (Velocidad necesaria de atención)", class: "form-label" %>
+            <%= f.select :urgency, [["1 - Muy baja", 1], ["2 - Baja", 2], ["3 - Media", 3], ["4 - Alta", 4], ["5 - Muy alta", 5]], {}, class: "form-control" %>
+            <small style="color: var(--slate-500); font-size: 0.75rem;">¿Qué tan pronto se requiere la solución?</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <%= f.label :impact, "Impacto (Alcance del perjuicio en el negocio)", class: "form-label" %>
+            <%= f.select :impact, [["1 - Muy bajo", 1], ["2 - Bajo", 2], ["3 - Medio", 3], ["4 - Alto", 4], ["5 - Muy alto", 5]], {}, class: "form-control" %>
+            <small style="color: var(--slate-500); font-size: 0.75rem;">¿Cuántos usuarios o procesos afecta?</small>
+          </div>
+        </div>
+      </div>
+
+      <% if current_user.staff? %>
+        <!-- Staff Only Administration Options -->
+        <div style="border-top: 1px solid var(--slate-200); padding-top: 1.25rem; margin-top: 1.25rem;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin-bottom: 1rem;">
+            Opciones Técnicas (Solo Administradores y Técnicos)
+          </h4>
+          <div class="form-row">
+            <div class="form-group">
+              <%= f.label :status, "Estado del Ticket", class: "form-label" %>
+              <%= f.select :status, Ticket::STATUSES.invert.to_a, {}, class: "form-control" %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :assigned_to_id, "Técnico Asignado", class: "form-label" %>
+              <%= f.collection_select :assigned_to_id, User.technicians, :id, :display_name, { prompt: "Sin asignar" }, class: "form-control" %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :due_at, "Fecha Límite (SLA)", class: "form-label" %>
+              <%= f.datetime_field :due_at, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <%= f.submit ticket.new_record? ? "Registrar Ticket" : "Guardar Cambios", class: "btn btn-primary" %>
+        <%= link_to "Cancelar", ticket.new_record? ? tickets_path : ticket_path(ticket), class: "btn btn-secondary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

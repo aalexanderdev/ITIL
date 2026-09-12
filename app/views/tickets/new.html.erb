@@ -1,0 +1,13 @@
+<% content_for :title, "Nuevo Ticket - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Crear Nuevo Ticket</h1>
+    <p class="page-subtitle">Reportar una incidencia de TI o solicitar un servicio</p>
+  </div>
+  <div>
+    <%= link_to "← Volver al listado", tickets_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<%= render "form", ticket: @ticket %>

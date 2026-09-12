@@ -1,0 +1,295 @@
+<% content_for :title, "#{@ticket.ticket_number}: #{@ticket.title} - OpenITIL" %>
+
+<!-- Page Header with Status & Workflow Actions -->
+<div class="page-header">
+  <div>
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+      <span style="font-weight: 800; color: var(--primary); font-size: 1.15rem;"><%= @ticket.ticket_number %></span>
+      <span class="badge <%= @ticket.status_badge_class %>">
+        <span class="badge-dot"></span>
+        <%= @ticket.status_name %>
+      </span>
+      <span class="badge <%= @ticket.priority_badge_class %>">
+        Prioridad: <%= @ticket.priority_name %>
+      </span>
+      <span style="font-size: 0.8rem; color: var(--slate-500);">
+        Registrado hace <%= time_ago_in_words(@ticket.created_at) %>
+      </span>
+    </div>
+    <h1 class="page-title"><%= @ticket.title %></h1>
+  </div>
+
+  <!-- Quick Action Buttons -->
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <% if current_user.staff? %>
+      <% if @ticket.assigned_to_id != current_user.id && @ticket.open? %>
+        <%= button_to assign_to_me_ticket_path(@ticket), method: :patch, class: "btn btn-secondary btn-sm" do %>
+          <span>🙋 Asignar a mí</span>
+        <% end %>
+      <% end %>
+
+      <% if @ticket.open? %>
+        <button type="button" class="btn btn-success btn-sm" onclick="document.getElementById('solution-modal').style.display='flex'">
+          <span>✓ Resolver Ticket</span>
+        </button>
+      <% elsif @ticket.solved? %>
+        <%= button_to close_ticket_path(@ticket), method: :patch, class: "btn btn-secondary btn-sm" do %>
+          <span>🔒 Cerrar Ticket</span>
+        <% end %>
+      <% end %>
+
+      <% if !@ticket.open? %>
+        <%= button_to reopen_ticket_path(@ticket), method: :patch, class: "btn btn-secondary btn-sm" do %>
+          <span>↺ Reabrir Ticket</span>
+        <% end %>
+      <% end %>
+
+      <%= link_to "✏️ Editar", edit_ticket_path(@ticket), class: "btn btn-secondary btn-sm" %>
+    <% end %>
+
+    <%= link_to "← Volver", tickets_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<!-- Main Layout: Details Sidebar + Timeline Content -->
+<div class="ticket-layout">
+  <!-- Right (Main): Description + Timeline -->
+  <div>
+    <!-- Original Description Card -->
+    <div class="card">
+      <div class="card-header">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div class="user-avatar" style="width: 28px; height: 28px; font-size: 0.75rem;">
+            <%= @ticket.requester&.first_name&.first || "U" %>
+          </div>
+          <div>
+            <strong style="font-size: 0.9rem; color: var(--slate-900);"><%= @ticket.requester&.full_name %></strong>
+            <span style="font-size: 0.75rem; color: var(--slate-500); margin-left: 0.5rem;">(Solicitud Inicial)</span>
+          </div>
+        </div>
+        <span style="font-size: 0.75rem; color: var(--slate-500);"><%= @ticket.created_at.strftime("%d/%m/%Y %H:%M") %></span>
+      </div>
+      <div class="card-body">
+        <div style="white-space: pre-wrap; font-size: 0.925rem; color: var(--slate-800); line-height: 1.6;">
+          <%= @ticket.description %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline of Followups, Tasks, Solutions -->
+    <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--slate-900); margin: 1.5rem 0 1rem;">
+      Línea de Tiempo y Seguimiento (<%= @ticket_updates.count %>)
+    </h3>
+
+    <div class="timeline">
+      <% if @ticket_updates.any? %>
+        <% @ticket_updates.each do |upd| %>
+          <div class="timeline-item">
+            <div class="timeline-bullet <%= 'private' if upd.private? %> <%= 'solution' if upd.solution? %> <%= 'task' if upd.task? %>"></div>
+            
+            <div class="timeline-box <%= 'is-private' if upd.private? %> <%= 'is-solution' if upd.solution? %>">
+              <div class="timeline-meta">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                  <span class="timeline-author"><%= upd.user.full_name %></span>
+                  
+                  <% if upd.private? %>
+                    <span class="badge badge-warning" style="font-size: 0.7rem;">🔒 Nota Interna</span>
+                  <% elsif upd.solution? %>
+                    <span class="badge badge-success" style="font-size: 0.7rem;">🏆 Solución Registrada</span>
+                  <% elsif upd.task? %>
+                    <span class="badge badge-info" style="font-size: 0.7rem;">⏱️ Tarea Técnica (<%= upd.time_spent_minutes %> min)</span>
+                  <% else %>
+                    <span class="badge badge-secondary" style="font-size: 0.7rem;">💬 Seguimiento</span>
+                  <% end %>
+                </div>
+                <span><%= time_ago_in_words(upd.created_at) %></span>
+              </div>
+
+              <div style="white-space: pre-wrap; font-size: 0.9rem; color: var(--slate-800); line-height: 1.5;">
+                <%= upd.content %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div style="padding: 1.5rem; background: var(--white); border: 1px dashed var(--slate-300); border-radius: var(--radius-lg); text-align: center; color: var(--slate-500); margin-bottom: 1.5rem;">
+          No hay seguimientos registrados aún en este ticket.
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Form to Add Update (Follow-up / Task / Solution) -->
+    <div class="card" style="margin-top: 2rem;">
+      <div class="card-header">
+        <h3 class="card-title">Agregar Seguimiento o Acción</h3>
+      </div>
+      <div class="card-body">
+        <%= form_with model: [@ticket, @new_update], local: true do |f| %>
+          <div class="form-group">
+            <%= f.label :update_type, "Tipo de Registro", class: "form-label" %>
+            <% update_options = [["Seguimiento Público (Visible para el usuario)", "comment"]] %>
+            <% if current_user.staff? %>
+              <% update_options << ["Nota Interna Privada (Solo Técnicos)", "private_note"] %>
+              <% update_options << ["Tarea Técnica (Registro de Tiempo)", "task"] %>
+              <% update_options << ["Solución Propuesta", "solution"] %>
+            <% end %>
+            <%= f.select :update_type, update_options, {}, class: "form-control", id: "update_type_select", onchange: "document.getElementById('task_time_group').style.display = (this.value === 'task' ? 'block' : 'none');" %>
+          </div>
+
+          <div class="form-group" id="task_time_group" style="display: none;">
+            <%= f.label :time_spent_minutes, "Tiempo Dedicado (Minutos)", class: "form-label" %>
+            <%= f.number_field :time_spent_minutes, value: 30, min: 1, step: 5, class: "form-control", style: "width: 150px;" %>
+          </div>
+
+          <div class="form-group">
+            <%= f.label :content, "Mensaje / Descripción de la Acción", class: "form-label" %>
+            <%= f.text_area :content, rows: 4, required: true, placeholder: "Escriba aquí los detalles del seguimiento, las pruebas realizadas o la solución aplicada...", class: "form-control" %>
+          </div>
+
+          <%= f.submit "Publicar Seguimiento", class: "btn btn-primary" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Left: Metadata Details Card -->
+  <div>
+    <!-- Ticket Attributes -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Información del Servicio</h3>
+      </div>
+      <div class="card-body" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Tipo de Solicitud</span>
+          <div style="font-weight: 600; color: var(--slate-800); margin-top: 2px;">
+            <%= @ticket.type_name %>
+          </div>
+        </div>
+
+        <div>
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Categoría</span>
+          <div style="font-weight: 600; color: var(--slate-800); margin-top: 2px;">
+            <%= @ticket.ticket_category&.name || "Sin categoría" %>
+          </div>
+        </div>
+
+        <div>
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Solicitante</span>
+          <div style="font-weight: 600; color: var(--slate-900); margin-top: 2px;">
+            <%= @ticket.requester&.full_name %>
+          </div>
+          <div style="font-size: 0.775rem; color: var(--slate-500);">
+            <%= @ticket.requester&.email_address %>
+          </div>
+          <% if @ticket.requester&.phone.present? %>
+            <div style="font-size: 0.775rem; color: var(--slate-500);">
+              📞 <%= @ticket.requester.phone %>
+            </div>
+          <% end %>
+        </div>
+
+        <div>
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Técnico Asignado</span>
+          <div style="font-weight: 600; color: var(--slate-800); margin-top: 2px;">
+            <% if @ticket.assigned_to %>
+              <%= @ticket.assigned_to.full_name %>
+            <% else %>
+              <span style="color: var(--slate-400); font-style: italic;">Sin asignar</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div style="padding-top: 0.75rem; border-top: 1px solid var(--slate-100);">
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Matriz ITIL</span>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.35rem;">
+            <div style="flex: 1; background: var(--slate-50); padding: 6px 8px; border-radius: var(--radius-sm); font-size: 0.8rem;">
+              <span style="color: var(--slate-500); display: block; font-size: 0.7rem;">Urgencia</span>
+              <strong><%= @ticket.urgency_name %></strong>
+            </div>
+            <div style="flex: 1; background: var(--slate-50); padding: 6px 8px; border-radius: var(--radius-sm); font-size: 0.8rem;">
+              <span style="color: var(--slate-500); display: block; font-size: 0.7rem;">Impacto</span>
+              <strong><%= @ticket.impact_name %></strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLA Countdown -->
+        <div class="sla-box <%= 'sla-overdue' if @ticket.overdue? %>">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+            <span style="font-weight: 700;">Compromiso SLA:</span>
+            <span><%= @ticket.overdue? ? '⚠️ Vencido' : 'En plazo' %></span>
+          </div>
+          <div>
+            <% if @ticket.due_at %>
+              Fecha límite: <strong><%= @ticket.due_at.strftime("%d/%m/%Y %H:%M") %></strong>
+            <% else %>
+              Sin fecha fijada
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Total Time Logged -->
+        <div>
+          <span style="font-size: 0.75rem; color: var(--slate-400); text-transform: uppercase; font-weight: 700;">Tiempo Total Invertido</span>
+          <div style="font-weight: 700; color: var(--slate-900); font-size: 1.1rem; margin-top: 2px;">
+            ⏱️ <%= @ticket.total_time_spent %> min (<%= (@ticket.total_time_spent / 60.0).round(1) %> hrs)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Asset Card (if linked) -->
+    <% if @ticket.asset %>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Activo Afectado</h3>
+          <%= link_to "Ficha →", asset_path(@ticket.asset), style: "font-size: 0.85rem;" %>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <span class="badge <%= @ticket.asset.status_badge_class %>">
+              <%= @ticket.asset.status_name %>
+            </span>
+            <strong style="color: var(--primary);"><%= @ticket.asset.asset_tag %></strong>
+          </div>
+          <div style="font-weight: 600; color: var(--slate-900); font-size: 0.95rem;">
+            <%= @ticket.asset.name %>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.25rem;">
+            <%= @ticket.asset.manufacturer %> <%= @ticket.asset.model %>
+          </div>
+          <% if @ticket.asset.ip_address.present? %>
+            <div style="font-size: 0.775rem; color: var(--slate-600); margin-top: 0.35rem;">
+              🌐 IP: <code><%= @ticket.asset.ip_address %></code>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Modal para Registrar Solución -->
+<div id="solution-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 999; align-items: center; justify-content: center; padding: 1.5rem;">
+  <div style="background: var(--white); border-radius: var(--radius-xl); max-width: 540px; width: 100%; padding: 2rem; box-shadow: var(--shadow-xl);">
+    <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.5rem;">
+      Resolver Ticket <%= @ticket.ticket_number %>
+    </h3>
+    <p style="font-size: 0.85rem; color: var(--slate-500); margin-bottom: 1.25rem;">
+      Indique la solución aplicada para que quede documentada y disponible en el historial del servicio.
+    </p>
+
+    <%= form_with url: solve_ticket_path(@ticket), method: :patch, local: true do |f| %>
+      <div class="form-group">
+        <label class="form-label">Detalle de la Solución Aplicada</label>
+        <textarea name="solution_text" rows="5" required class="form-control" placeholder="Describa el procedimiento realizado para resolver la incidencia..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('solution-modal').style.display='none'">Cancelar</button>
+        <%= f.submit "Confirmar y Resolver", class: "btn btn-success" %>
+      </div>
+    <% end %>
+  </div>
+</div>

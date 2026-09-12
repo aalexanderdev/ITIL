@@ -1,0 +1,13 @@
+<% content_for :title, "Editar Ticket #{@ticket.ticket_number} - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Editar Ticket <%= @ticket.ticket_number %></h1>
+    <p class="page-subtitle">Modificar parámetros, asignación y estado</p>
+  </div>
+  <div>
+    <%= link_to "← Volver al ticket", ticket_path(@ticket), class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<%= render "form", ticket: @ticket %>
