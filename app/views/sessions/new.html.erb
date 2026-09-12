@@ -1,0 +1,55 @@
+<div class="auth-header">
+  <div style="display: inline-flex; width: 48px; height: 48px; background: linear-gradient(135deg, #4f46e5, #06b6d4); border-radius: 12px; align-items: center; justify-content: center; color: #fff; box-shadow: 0 8px 16px rgba(79,70,229,0.35);">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+    </svg>
+  </div>
+  <h2 class="auth-title">Iniciar Sesión en OpenITIL</h2>
+  <p class="auth-subtitle">Gestión de Servicios e Inventario TI (CMDB / ITSM)</p>
+</div>
+
+<% if flash[:alert] %>
+  <div class="alert alert-alert">
+    <span><%= flash[:alert] %></span>
+  </div>
+<% end %>
+
+<% if flash[:notice] %>
+  <div class="alert alert-notice">
+    <span><%= flash[:notice] %></span>
+  </div>
+<% end %>
+
+<%= form_with url: session_path do |form| %>
+  <div class="form-group">
+    <%= form.label :email_address, "Correo Electrónico", class: "form-label" %>
+    <%= form.email_field :email_address, id: "email_address_input", required: true, autofocus: true, autocomplete: "username", placeholder: "ejemplo@itil.local", value: params[:email_address] || "admin@itil.local", class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+      <%= form.label :password, "Contraseña", class: "form-label", style: "margin-bottom: 0;" %>
+      <%= link_to "¿Olvidaste tu contraseña?", new_password_path, style: "font-size: 0.775rem;" %>
+    </div>
+    <%= form.password_field :password, id: "password_input", required: true, autocomplete: "current-password", placeholder: "••••••••", value: "password123", class: "form-control" %>
+  </div>
+
+  <div style="margin-top: 1.5rem;">
+    <%= form.submit "Ingresar al Sistema", class: "btn btn-primary", style: "width: 100%; padding: 0.75rem;" %>
+  </div>
+<% end %>
+
+<div style="margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--slate-200); text-align: center;">
+  <p style="font-size: 0.8rem; color: var(--slate-500); margin-bottom: 0.6rem; font-weight: 600;">Accesos rápidos para demostración:</p>
+  <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('email_address_input').value='admin@itil.local'; document.getElementById('password_input').value='password123';">
+      👑 Administrador
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('email_address_input').value='tecnico@itil.local'; document.getElementById('password_input').value='password123';">
+      🔧 Técnico TI
+    </button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('email_address_input').value='usuario@itil.local'; document.getElementById('password_input').value='password123';">
+      👤 Usuario
+    </button>
+  </div>
+</div>
