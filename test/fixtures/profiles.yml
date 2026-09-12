@@ -1,0 +1,91 @@
+super_admin:
+  name: "Super-Administrador"
+  description: "Control total de la mesa de ayuda, activos, usuarios, perfiles y configuraciones del sistema"
+  color: "#4f46e5"
+  base_role: "admin"
+  ticket_all_view: true
+  ticket_create: true
+  ticket_edit: true
+  ticket_assign: true
+  ticket_solve: true
+  ticket_close: true
+  ticket_delete: true
+  ticket_private_notes: true
+  asset_view: true
+  asset_manage: true
+  kb_view: true
+  kb_manage: true
+  chat_access: true
+  chat_convert_ticket: true
+  chat_config: true
+  admin_access: true
+  is_default: false
+
+technician:
+  name: "Técnico Especialista TI"
+  description: "Gestión operativa de incidencias, notas técnicas internas, asignación y catálogo de activos"
+  color: "#0284c7"
+  base_role: "technician"
+  ticket_all_view: true
+  ticket_create: true
+  ticket_edit: true
+  ticket_assign: true
+  ticket_solve: true
+  ticket_close: true
+  ticket_delete: false
+  ticket_private_notes: true
+  asset_view: true
+  asset_manage: true
+  kb_view: true
+  kb_manage: true
+  chat_access: true
+  chat_convert_ticket: true
+  chat_config: false
+  admin_access: false
+  is_default: false
+
+self_service:
+  name: "Usuario Autoservicio"
+  description: "Apertura de solicitudes, seguimiento de tickets propios, consulta de equipos a cargo y chat"
+  color: "#10b981"
+  base_role: "user"
+  ticket_all_view: false
+  ticket_create: true
+  ticket_edit: false
+  ticket_assign: false
+  ticket_solve: false
+  ticket_close: false
+  ticket_delete: false
+  ticket_private_notes: false
+  asset_view: true
+  asset_manage: false
+  kb_view: true
+  kb_manage: false
+  chat_access: true
+  chat_convert_ticket: false
+  chat_config: false
+  admin_access: false
+  is_default: true
+
+auditor:
+  name: "Auditor / Observador"
+  description: "Consulta y auditoría de tickets, métricas de panel y activos sin permisos de modificación"
+  color: "#64748b"
+  base_role: "user"
+  ticket_all_view: true
+  ticket_create: false
+  ticket_edit: false
+  ticket_assign: false
+  ticket_solve: false
+  ticket_close: false
+  ticket_delete: false
+  ticket_private_notes: false
+  asset_view: true
+  asset_manage: false
+  kb_view: true
+  kb_manage: false
+  chat_access: true
+  chat_convert_ticket: false
+  chat_config: false
+  admin_access: false
+  is_default: false

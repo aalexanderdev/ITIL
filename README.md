@@ -30,10 +30,15 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 - **Financial & Warranty Tracking**: Purchase dates, warranty expirations, and custody history.
 - **Bi-directional Asset-Ticket Linking**: Attach affected devices to support tickets, and view full maintenance and failure histories directly on the asset's technical sheet.
 
-### 3. Role-Based Access Control (RBAC)
-- **Administrator (`admin`)**: Complete system authority over users, physical sites, departments, service categories, and reporting.
-- **Support Technician (`technician`)**: Assignment handling, internal notes, time logging, asset catalogue management, and knowledge article publishing.
-- **End-User (`user`)**: Self-service portal to submit and track support requests, review equipment in their custody, and browse self-service FAQs.
+### 3. Role-Based Access Control (RBAC) & Profile Management (GLPI-Style)
+- **Granular Permissions Matrix**: Configurable permission sets across Ticket operations (view all, create, edit, assign, solve, close, delete, internal notes), Asset management, Knowledge Base, HelpdeskChat access/configuration, and administrative authority.
+- **Built-in System Profiles**:
+  - **Super-Administrator**: Full system authority over tickets, assets, users, profiles, locations, and chat configuration.
+  - **IT Support Technician**: Operational control of tickets, internal technical notes, time tracking, and asset inventory.
+  - **Self-Service User**: Portal access for raising requests, tracking ticket status, viewing assigned hardware, and live chat.
+  - **Observer / Read-Only**: Read-only oversight for audits, compliance, and reporting.
+- **Profile Administration (`/profiles`)**: Full administrative CRUD to create, inspect, edit, and assign custom profiles with visual badge tags and active user counts.
+- **Personal "My Profile" (`/profile`)**: Dedicated self-service screen where any logged-in user can update contact info, change passwords securely with confirmation validation, review their assigned hardware assets, and track recent support requests.
 
 ### 4. Knowledge Base (FAQ)
 - Centralized repository of how-to manuals, troubleshooting procedures, and self-help articles categorized by service domain with view analytics.
@@ -132,8 +137,8 @@ bin/rails test
 
 All tests should pass with 0 failures and 0 errors:
 ```text
-Running 51 tests in parallel using 12 processes
-51 runs, 206 assertions, 0 failures, 0 errors, 0 skips
+Running 64 tests in parallel using 12 processes
+64 runs, 279 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ---
@@ -158,9 +163,12 @@ Running 51 tests in parallel using 12 processes
 │   │   ├── chat_settings_controller.rb     # Administrative HelpdeskChat panel
 │   │   ├── dashboard_controller.rb         # Real-time metrics
 │   │   ├── kb_articles_controller.rb       # Knowledge Base
+│   │   ├── profiles_controller.rb          # RBAC Profile administration (GLPI-style)
 │   │   ├── sessions_controller.rb          # Authentication
 │   │   ├── ticket_updates_controller.rb    # Timeline follow-ups & tasks
-│   │   └── tickets_controller.rb           # Helpdesk & ITIL workflow
+│   │   ├── tickets_controller.rb           # Helpdesk & ITIL workflow
+│   │   ├── user_profiles_controller.rb     # Self-service "My Profile" & password update
+│   │   └── users_controller.rb             # User directory & profile assignment
 │   ├── javascript/
 │   │   └── chat.js                         # HelpdeskChat UI engine & event loop
 │   ├── models/
@@ -169,16 +177,17 @@ Running 51 tests in parallel using 12 processes
 │   │   ├── chat_message.rb                 # Chat messages with reactions
 │   │   ├── chat_presence.rb                # Online/offline presence heartbeats
 │   │   ├── chat_setting.rb                 # Configuration singleton & defaults
+│   │   ├── profile.rb                      # Granular RBAC permission matrix model
 │   │   ├── ticket.rb                       # Ticket with ITIL matrix & SLA
 │   │   ├── ticket_update.rb                # Timeline updates & notice hooks
-│   │   └── user.rb                         # RBAC model (admin/tech/user)
-│   └── views/                              # Responsive view templates (tickets, assets, chat_settings...)
+│   │   └── user.rb                         # User model with profile delegation
+│   └── views/                              # Responsive view templates (profiles, user_profiles, tickets...)
 ├── config/                                 # Routes, environments & Solid config
 ├── db/
 │   ├── migrate/                            # Active Record migrations
 │   ├── schema.rb                           # Database schema
 │   └── seeds.rb                            # Sample ITSM & CMDB dataset
-└── test/                                   # Model and integration tests
+└── test/                                   # Model and integration tests (64 tests)
 ```
 
 ---

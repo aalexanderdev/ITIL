@@ -1,0 +1,13 @@
+<% content_for :title, "Nuevo Perfil - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Crear Nuevo Perfil RBAC</h1>
+    <p class="page-subtitle">Define un nuevo rol funcional con permisos personalizados para usuarios o técnicos</p>
+  </div>
+  <div>
+    <%= link_to "← Volver a Perfiles", profiles_path, class: "btn btn-secondary btn-sm" %>
+  </div>
+</div>
+
+<%= render "form", profile: @profile %>

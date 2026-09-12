@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_12_190001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_12_200001) do
   create_table "assets", force: :cascade do |t|
     t.string "asset_tag", null: false
     t.string "asset_type", default: "computer", null: false
@@ -159,6 +159,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_12_190001) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "profiles", force: :cascade do |t|
+    t.boolean "admin_access", default: false, null: false
+    t.boolean "asset_manage", default: false, null: false
+    t.boolean "asset_view", default: true, null: false
+    t.string "base_role", default: "user", null: false
+    t.boolean "chat_access", default: true, null: false
+    t.boolean "chat_config", default: false, null: false
+    t.boolean "chat_convert_ticket", default: false, null: false
+    t.string "color", default: "#4f46e5", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.boolean "is_default", default: false, null: false
+    t.boolean "kb_manage", default: false, null: false
+    t.boolean "kb_view", default: true, null: false
+    t.string "name", null: false
+    t.boolean "ticket_all_view", default: false, null: false
+    t.boolean "ticket_assign", default: false, null: false
+    t.boolean "ticket_close", default: false, null: false
+    t.boolean "ticket_create", default: true, null: false
+    t.boolean "ticket_delete", default: false, null: false
+    t.boolean "ticket_edit", default: false, null: false
+    t.boolean "ticket_private_notes", default: false, null: false
+    t.boolean "ticket_solve", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_profiles_on_name", unique: true
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -227,10 +254,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_12_190001) do
     t.string "last_name"
     t.string "password_digest", null: false
     t.string "phone"
+    t.integer "profile_id"
     t.string "role", default: "user", null: false
     t.datetime "updated_at", null: false
     t.index ["department_id"], name: "index_users_on_department_id"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["profile_id"], name: "index_users_on_profile_id"
     t.index ["role"], name: "index_users_on_role"
   end
 
@@ -255,4 +284,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_12_190001) do
   add_foreign_key "tickets", "ticket_categories"
   add_foreign_key "tickets", "users", column: "assigned_to_id"
   add_foreign_key "tickets", "users", column: "requester_id"
+  add_foreign_key "users", "profiles"
 end

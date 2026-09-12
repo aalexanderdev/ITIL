@@ -1,12 +1,19 @@
 # Seed data for ITIL / GLPI-like system
 
 puts "Limpiando base de datos..."
+ChatMessageReaction.destroy_all if defined?(ChatMessageReaction)
+ChatMessage.destroy_all if defined?(ChatMessage)
+ChatConversationUser.destroy_all if defined?(ChatConversationUser)
+ChatConversation.destroy_all if defined?(ChatConversation)
+ChatPresence.destroy_all if defined?(ChatPresence)
+Session.destroy_all if defined?(Session)
 TicketUpdate.destroy_all
 Ticket.destroy_all
 Asset.destroy_all
 KbArticle.destroy_all
 TicketCategory.destroy_all
 User.destroy_all
+Profile.destroy_all if defined?(Profile)
 Department.destroy_all
 Location.destroy_all
 
@@ -48,6 +55,76 @@ cat_sw = TicketCategory.create!(name: "Software y Sistemas", description: "Insta
 cat_acc = TicketCategory.create!(name: "Accesos y Cuentas", description: "Contraseñas, permisos de red, correos y ERP", color: "#ec4899")
 cat_prn = TicketCategory.create!(name: "Impresoras y Escáneres", description: "Tóner, atascos y configuración de red", color: "#f59e0b")
 
+puts "Creando Perfiles y Permisos (RBAC)..."
+prof_admin = Profile.find_or_create_by!(name: "Super-Administrador") do |p|
+  p.description = "Control total de la mesa de ayuda, activos, usuarios, perfiles y configuraciones del sistema"
+  p.color = "#4f46e5"
+  p.base_role = "admin"
+  p.ticket_all_view = true
+  p.ticket_create = true
+  p.ticket_edit = true
+  p.ticket_assign = true
+  p.ticket_solve = true
+  p.ticket_close = true
+  p.ticket_delete = true
+  p.ticket_private_notes = true
+  p.asset_view = true
+  p.asset_manage = true
+  p.kb_view = true
+  p.kb_manage = true
+  p.chat_access = true
+  p.chat_convert_ticket = true
+  p.chat_config = true
+  p.admin_access = true
+  p.is_default = false
+end
+
+prof_tech = Profile.find_or_create_by!(name: "Técnico Especialista TI") do |p|
+  p.description = "Gestión operativa de incidencias, notas técnicas internas, asignación y catálogo de activos"
+  p.color = "#0284c7"
+  p.base_role = "technician"
+  p.ticket_all_view = true
+  p.ticket_create = true
+  p.ticket_edit = true
+  p.ticket_assign = true
+  p.ticket_solve = true
+  p.ticket_close = true
+  p.ticket_delete = false
+  p.ticket_private_notes = true
+  p.asset_view = true
+  p.asset_manage = true
+  p.kb_view = true
+  p.kb_manage = true
+  p.chat_access = true
+  p.chat_convert_ticket = true
+  p.chat_config = false
+  p.admin_access = false
+  p.is_default = false
+end
+
+prof_user = Profile.find_or_create_by!(name: "Usuario Autoservicio") do |p|
+  p.description = "Apertura de solicitudes, seguimiento de tickets propios, consulta de equipos a cargo y chat"
+  p.color = "#10b981"
+  p.base_role = "user"
+  p.ticket_all_view = false
+  p.ticket_create = true
+  p.ticket_edit = false
+  p.ticket_assign = false
+  p.ticket_solve = false
+  p.ticket_close = false
+  p.ticket_delete = false
+  p.ticket_private_notes = false
+  p.asset_view = true
+  p.asset_manage = false
+  p.kb_view = true
+  p.kb_manage = false
+  p.chat_access = true
+  p.chat_convert_ticket = false
+  p.chat_config = false
+  p.admin_access = false
+  p.is_default = true
+end
+
 puts "Creando Usuarios..."
 admin = User.create!(
   email_address: "admin@itil.local",
@@ -55,6 +132,7 @@ admin = User.create!(
   first_name: "Administrador",
   last_name: "Sistema",
   role: "admin",
+  profile: prof_admin,
   phone: "+1 555-0100",
   department: dep_ti,
   active: true
@@ -66,6 +144,7 @@ tech1 = User.create!(
   first_name: "Carlos",
   last_name: "Gómez",
   role: "technician",
+  profile: prof_tech,
   phone: "+1 555-0101",
   department: dep_ti,
   active: true
@@ -77,6 +156,7 @@ tech2 = User.create!(
   first_name: "Laura",
   last_name: "Méndez",
   role: "technician",
+  profile: prof_tech,
   phone: "+1 555-0102",
   department: dep_ti,
   active: true
@@ -88,6 +168,7 @@ user1 = User.create!(
   first_name: "Juan",
   last_name: "Pérez",
   role: "user",
+  profile: prof_user,
   phone: "+1 555-0201",
   department: dep_fin,
   active: true
@@ -99,6 +180,7 @@ user2 = User.create!(
   first_name: "María",
   last_name: "Rodríguez",
   role: "user",
+  profile: prof_user,
   phone: "+1 555-0202",
   department: dep_rrhh,
   active: true

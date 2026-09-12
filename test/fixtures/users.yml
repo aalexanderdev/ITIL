@@ -6,6 +6,7 @@ admin:
   first_name: Admin
   last_name: User
   role: admin
+  profile: super_admin
   active: true
 
 tech:
@@ -14,6 +15,7 @@ tech:
   first_name: Tech
   last_name: User
   role: technician
+  profile: technician
   active: true
 
 user:
@@ -22,4 +24,5 @@ user:
   first_name: Regular
   last_name: User
   role: user
+  profile: self_service
   active: true

@@ -5,6 +5,7 @@ class User < ApplicationRecord
   ROLES = %w[admin technician user].freeze
 
   belongs_to :department, optional: true
+  belongs_to :profile, optional: true
   has_many :requested_tickets, class_name: "Ticket", foreign_key: "requester_id", dependent: :nullify
   has_many :assigned_tickets, class_name: "Ticket", foreign_key: "assigned_to_id", dependent: :nullify
   has_many :assets, dependent: :nullify
@@ -15,6 +16,7 @@ class User < ApplicationRecord
   has_many :chat_conversation_users, dependent: :destroy
   has_many :chat_conversations, through: :chat_conversation_users
   has_many :chat_messages, dependent: :destroy
+  has_many :chat_message_reactions, dependent: :destroy
   has_one :chat_presence, dependent: :destroy
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
@@ -25,20 +27,28 @@ class User < ApplicationRecord
   scope :technicians, -> { where(role: %w[admin technician], active: true) }
   scope :active, -> { where(active: true) }
 
+  def effective_profile
+    profile || Profile.default_for(role)
+  end
+
+  def can?(permission)
+    effective_profile&.send(permission) || false
+  end
+
   def admin?
-    role == "admin"
+    role == "admin" || can?(:admin_access)
   end
 
   def technician?
-    role == "technician"
+    role == "technician" || (can?(:ticket_assign) && !admin?)
   end
 
   def end_user?
-    role == "user"
+    role == "user" && !staff?
   end
 
   def staff?
-    admin? || technician?
+    admin? || role == "technician" || can?(:ticket_assign) || can?(:ticket_solve)
   end
 
   def full_name

@@ -1,0 +1,109 @@
+<% content_for :title, "Perfil #{@profile.name} - OpenITIL" %>
+
+<div class="page-header">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span style="width: 16px; height: 16px; border-radius: 50%; background-color: <%= @profile.color %>;"></span>
+    <div>
+      <h1 class="page-title"><%= @profile.name %></h1>
+      <p class="page-subtitle"><%= @profile.description.presence || "Perfil de autorización del sistema" %></p>
+    </div>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <%= link_to "← Volver al Listado", profiles_path, class: "btn btn-secondary btn-sm" %>
+    <%= link_to "Editar Perfil y Permisos", edit_profile_path(@profile), class: "btn btn-primary btn-sm" %>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+  <!-- Matriz de permisos detallada -->
+  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+    <% Profile::PERMISSION_GROUPS.each do |key, group| %>
+      <div class="card">
+        <div class="card-header" style="background: var(--slate-50);">
+          <h3 class="card-title" style="font-size: 0.95rem;"><%= group[:label] %></h3>
+        </div>
+        <div class="card-body" style="padding: 0.75rem 1.25rem;">
+          <table class="table" style="margin-bottom: 0;">
+            <tbody>
+              <% group[:permissions].each do |perm_key, perm_desc| %>
+                <% granted = @profile.send(perm_key) %>
+                <tr>
+                  <td style="width: 32px; text-align: center; vertical-align: middle;">
+                    <% if granted %>
+                      <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #dcfce7; color: #15803d; font-weight: bold; font-size: 0.8rem;">✓</span>
+                    <% else %>
+                      <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #94a3b8; font-weight: bold; font-size: 0.8rem;">✕</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span style="font-weight: 600; font-size: 0.85rem; color: <%= granted ? 'var(--slate-900)' : 'var(--slate-400)' %>;">
+                      <%= perm_key.to_s.humanize %>
+                    </span>
+                    <div style="font-size: 0.775rem; color: var(--slate-500);"><%= perm_desc %></div>
+                  </td>
+                  <td style="width: 100px; text-align: right; vertical-align: middle;">
+                    <span class="badge <%= granted ? 'badge-success' : 'badge-light' %>">
+                      <%= granted ? "Permitido" : "Denegado" %>
+                    </span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Barra lateral con usuarios con este perfil -->
+  <div>
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <div class="card-header">
+        <h3 class="card-title" style="font-size: 0.95rem;">Resumen del Perfil</h3>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--slate-500);">Rol base:</span>
+            <span class="badge badge-primary"><%= @profile.base_role.titleize %></span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--slate-500);">Permisos activos:</span>
+            <span style="font-weight: 600;"><%= @profile.permissions_count %> de <%= @profile.total_permissions_count %></span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--slate-500);">Perfil por defecto:</span>
+            <span><%= @profile.is_default? ? "Sí" : "No" %></span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--slate-500);">Total de usuarios:</span>
+            <span style="font-weight: 600;"><%= @users.count %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title" style="font-size: 0.95rem;">Usuarios con este Perfil</h3>
+      </div>
+      <div class="card-body" style="padding: 0.5rem 1rem;">
+        <% if @users.empty? %>
+          <p style="font-size: 0.825rem; color: var(--slate-500); padding: 0.5rem 0;">Ningún usuario asignado a este perfil.</p>
+        <% else %>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <% @users.each do |user| %>
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--slate-100);">
+                <div>
+                  <div style="font-weight: 600; font-size: 0.85rem; color: var(--slate-800);"><%= user.full_name %></div>
+                  <div style="font-size: 0.75rem; color: var(--slate-500);"><%= user.email_address %></div>
+                </div>
+                <%= link_to "Ver", user_path(user), class: "btn btn-secondary btn-sm", style: "padding: 2px 8px; font-size: 0.75rem;" %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

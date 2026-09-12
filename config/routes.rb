@@ -21,6 +21,10 @@ Rails.application.routes.draw do
   resources :locations
   resources :ticket_categories
   resource :chat_settings, only: %i[show edit update]
+  resources :profiles
+  resource :profile, only: %i[show edit update], controller: "user_profiles", as: "user_profile" do
+    patch :update_password, on: :member
+  end
 
   # HelpdeskChat Native Endpoints
   scope "chat/ajax", module: :chat do

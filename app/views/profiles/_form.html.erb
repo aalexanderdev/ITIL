@@ -1,0 +1,112 @@
+<%= form_with model: profile, local: true do |f| %>
+  <% if profile.errors.any? %>
+    <div class="alert alert-alert" style="margin-bottom: 1.5rem;">
+      <strong>Por favor corrige los siguientes errores:</strong>
+      <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+        <% profile.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <!-- Datos Generales -->
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-header">
+      <h2 class="card-title" style="font-size: 1.05rem;">Datos del Perfil</h2>
+    </div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :name, "Nombre del Perfil *", class: "form-label" %>
+          <%= f.text_field :name, required: true, placeholder: "Ej. Soporte Nivel 2 / Redes", class: "form-control" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :base_role, "Rol Base de Referencia *", class: "form-label" %>
+          <%= f.select :base_role, [["Usuario Final (Autoservicio)", "user"], ["Técnico de Soporte TI", "technician"], ["Administrador Global", "admin"]], {}, class: "form-control" %>
+          <small style="color: var(--slate-500); font-size: 0.75rem;">Determina el tipo básico de cuenta para vistas simplificadas.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :color, "Color de Identificación", class: "form-label" %>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <%= f.color_field :color, id: "profile_color_picker", style: "width: 44px; height: 38px; border: 1px solid var(--slate-300); border-radius: var(--radius-sm); cursor: pointer; padding: 2px;" %>
+            <%= f.text_field :color, id: "profile_color_hex", class: "form-control", style: "max-width: 110px; font-family: monospace;" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :description, "Descripción y Alcance", class: "form-label" %>
+        <%= f.text_area :description, rows: 2, placeholder: "Describe los objetivos, responsabilidades y alcance funcional de este perfil...", class: "form-control" %>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.875rem; font-weight: 500; color: var(--slate-800);">
+          <%= f.check_box :is_default %>
+          <span>Asignar este perfil por defecto a los nuevos usuarios registrados</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Matriz Granular de Permisos -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.5rem;">Matriz Granular de Permisos (Estilo GLPI)</h3>
+    <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 1rem;">Configura de manera exacta qué operaciones puede realizar un usuario asignado a este perfil en cada módulo.</p>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <% Profile::PERMISSION_GROUPS.each do |key, group| %>
+        <div class="card">
+          <div class="card-header" style="background: var(--slate-50); border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--slate-800); margin: 0;">
+              <%= group[:label] %>
+            </h4>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="toggleAllCheckboxesIn('<%= key %>_group_body', true)">Marcar todos</button>
+          </div>
+          <div class="card-body" id="<%= key %>_group_body" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 0.85rem;">
+            <% group[:permissions].each do |perm_key, perm_desc| %>
+              <div style="background: #fff; border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 0.75rem 1rem;">
+                <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin: 0;">
+                  <%= f.check_box perm_key, style: "margin-top: 3px; width: 17px; height: 17px; accent-color: var(--primary);" %>
+                  <div>
+                    <span style="font-weight: 600; font-size: 0.85rem; color: var(--slate-900); display: block;">
+                      <%= perm_key.to_s.humanize %>
+                    </span>
+                    <span style="font-size: 0.775rem; color: var(--slate-500); line-height: 1.35; display: block; margin-top: 2px;">
+                      <%= perm_desc %>
+                    </span>
+                  </div>
+                </label>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 0.75rem; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.5rem;">
+    <%= f.submit profile.new_record? ? "Crear Perfil" : "Guardar Cambios del Perfil", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", profiles_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>
+
+<script>
+  // Link color picker with hex text box
+  const picker = document.getElementById('profile_color_picker');
+  const hex = document.getElementById('profile_color_hex');
+  if (picker && hex) {
+    picker.addEventListener('input', () => hex.value = picker.value);
+    hex.addEventListener('input', () => picker.value = hex.value);
+  }
+
+  function toggleAllCheckboxesIn(containerId, state) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const boxes = container.querySelectorAll('input[type="checkbox"]');
+    const allChecked = Array.from(boxes).every(b => b.checked);
+    boxes.forEach(b => b.checked = !allChecked);
+  }
+</script>

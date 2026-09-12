@@ -84,7 +84,12 @@
 
               <%= link_to users_path, class: "nav-item #{'active' if controller_name == 'users'}" do %>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <span>Usuarios y Roles</span>
+                <span>Usuarios</span>
+              <% end %>
+
+              <%= link_to profiles_path, class: "nav-item #{'active' if controller_name == 'profiles'}" do %>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Perfiles y Permisos</span>
               <% end %>
 
               <%= link_to departments_path, class: "nav-item #{'active' if controller_name == 'departments'}" do %>
@@ -100,14 +105,16 @@
           </nav>
 
           <div class="sidebar-footer">
-            <div class="user-avatar">
-              <%= current_user.first_name&.first || current_user.email_address.first.upcase %>
-            </div>
-            <div class="user-info">
-              <div class="user-name"><%= current_user.full_name %></div>
-              <div class="user-role"><%= current_user.role.titleize %></div>
-            </div>
-            <%= button_to session_path, method: :delete, class: "btn-secondary btn-sm", style: "border:none; background: transparent; color: #94a3b8; padding: 4px;" do %>
+            <%= link_to user_profile_path, style: "display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; flex: 1; min-width: 0;", title: "Ver Mi Perfil" do %>
+              <div class="user-avatar">
+                <%= current_user.first_name&.first || current_user.email_address.first.upcase %>
+              </div>
+              <div class="user-info">
+                <div class="user-name"><%= current_user.full_name %></div>
+                <div class="user-role"><%= current_user.effective_profile&.name || current_user.role.titleize %></div>
+              </div>
+            <% end %>
+            <%= button_to session_path, method: :delete, class: "btn-secondary btn-sm", style: "border:none; background: transparent; color: #94a3b8; padding: 4px;", title: "Cerrar Sesión" do %>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
             <% end %>
           </div>
