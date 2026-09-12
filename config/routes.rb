@@ -20,11 +20,15 @@ Rails.application.routes.draw do
   resources :departments
   resources :locations
   resources :ticket_categories
+  resource :chat_settings, only: %i[show edit update]
 
   # HelpdeskChat Native Endpoints
   scope "chat/ajax", module: :chat do
     get "token", to: "token#show"
     get "token.php", to: "token#show"
+
+    match "config", to: "config#handle", via: %i[get post]
+    match "config.php", to: "config#handle", via: %i[get post]
 
     match "conversations", to: "conversations#handle", via: %i[get post]
     match "conversations.php", to: "conversations#handle", via: %i[get post]

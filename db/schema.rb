@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_12_180001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_12_190001) do
   create_table "assets", force: :cascade do |t|
     t.string "asset_tag", null: false
     t.string "asset_type", default: "computer", null: false
@@ -95,6 +95,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_12_180001) do
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
     t.index ["user_id"], name: "index_chat_presences_on_user_id", unique: true
+  end
+
+  create_table "chat_settings", force: :cascade do |t|
+    t.string "bubble_color", default: "#4f46e5", null: false
+    t.datetime "created_at", null: false
+    t.integer "font_size", default: 14, null: false
+    t.string "launcher_color", default: "#4f46e5", null: false
+    t.integer "max_message_length", default: 2000, null: false
+    t.string "mention_color", default: "#4338ca", null: false
+    t.boolean "notification_sound_enabled", default: true, null: false
+    t.boolean "notify_on_assignment", default: true, null: false
+    t.boolean "notify_on_comment", default: true, null: false
+    t.boolean "notify_on_private_note", default: true, null: false
+    t.boolean "notify_on_solution", default: true, null: false
+    t.integer "panel_width_px", default: 380, null: false
+    t.integer "poll_conversations_ms", default: 10000, null: false
+    t.integer "poll_messages_ms", default: 2000, null: false
+    t.integer "poll_online_users_ms", default: 30000, null: false
+    t.integer "poll_presence_ms", default: 30000, null: false
+    t.boolean "presence_enabled", default: true, null: false
+    t.boolean "reactions_enabled", default: true, null: false
+    t.boolean "read_receipts_enabled", default: true, null: false
+    t.text "shortcut_buttons_json"
+    t.boolean "ticket_conversion_enabled", default: true, null: false
+    t.boolean "ticket_conversion_on_received", default: true, null: false
+    t.boolean "ticket_conversion_on_sent", default: false, null: false
+    t.string "ticket_conversion_requester", default: "converter", null: false
+    t.boolean "typing_indicator_enabled", default: true, null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "departments", force: :cascade do |t|

@@ -8,36 +8,34 @@ module Chat
       ChatConversation.find_or_create_self(current_user)
       ChatConversation.sync_department_conversations if current_user.department_id
 
+      setting = ChatSetting.current
+
       render json: {
         csrf_token: session[:_chat_csrf],
         users_id: current_user.id,
         own_name: current_user.full_name,
-        shortcut_buttons: [
-          { label: "Helpdesk", url: "/tickets" },
-          { label: "Inventario CMDB", url: "/assets" },
-          { label: "Base Conocimiento", url: "/kb_articles" }
-        ],
-        reactions_enabled: true,
-        presence_enabled: true,
-        typing_indicator_enabled: true,
-        notification_sound_enabled: true,
-        panel_width_px: 380,
-        bubble_color: "#4f46e5",
-        mention_color: "#4338ca",
-        launcher_color: "#4f46e5",
-        font_size: "normal",
-        poll_messages_ms: 2000,
-        poll_conversations_ms: 10000,
-        poll_online_users_ms: 30000,
-        poll_presence_ms: 30000,
-        max_message_length: 2000,
+        shortcut_buttons: setting.parsed_shortcut_buttons,
+        reactions_enabled: setting.reactions_enabled,
+        presence_enabled: setting.presence_enabled,
+        typing_indicator_enabled: setting.typing_indicator_enabled,
+        notification_sound_enabled: setting.notification_sound_enabled,
+        panel_width_px: setting.panel_width_px,
+        bubble_color: setting.bubble_color,
+        mention_color: setting.mention_color,
+        launcher_color: setting.launcher_color,
+        font_size: setting.font_size,
+        poll_messages_ms: setting.poll_messages_ms,
+        poll_conversations_ms: setting.poll_conversations_ms,
+        poll_online_users_ms: setting.poll_online_users_ms,
+        poll_presence_ms: setting.poll_presence_ms,
+        max_message_length: setting.max_message_length,
         emoji_enabled: false, # Clean native experience without external vendor blob
         attachment_enabled: false,
         ticket_conversion: {
-          can_convert: current_user.staff?,
-          on_received: true,
-          on_sent: false,
-          requester_mode: "converter",
+          can_convert: current_user.staff? && setting.ticket_conversion_enabled,
+          on_received: setting.ticket_conversion_on_received,
+          on_sent: setting.ticket_conversion_on_sent,
+          requester_mode: setting.ticket_conversion_requester,
           categories: TicketCategory.all.map { |c| { id: c.id, name: c.name } }
         },
         i18n: {

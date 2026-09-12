@@ -170,6 +170,9 @@ class Ticket < ApplicationRecord
   end
 
   def dispatch_create_chat_notice
+    setting = ChatSetting.current
+    return unless setting.notify_on_assignment
+
     if assigned_to
       assigned_to.send_system_chat_notice(
         "📋 Asignación: Se te ha asignado el Ticket ##{ticket_number} - #{title}",
@@ -179,19 +182,21 @@ class Ticket < ApplicationRecord
   end
 
   def dispatch_update_chat_notice
-    if saved_change_to_assigned_to_id? && assigned_to
+    setting = ChatSetting.current
+
+    if saved_change_to_assigned_to_id? && assigned_to && setting.notify_on_assignment
       assigned_to.send_system_chat_notice(
         "📋 Asignación: Se te ha asignado el Ticket ##{ticket_number} - #{title}",
         "/tickets/#{id}"
       )
     end
 
-    if saved_change_to_status? && status == "solved"
+    if saved_change_to_status? && status == "solved" && setting.notify_on_solution
       requester&.send_system_chat_notice(
         "✅ Resolución: Tu ticket ##{ticket_number} ha sido resuelto: #{title}",
         "/tickets/#{id}"
       )
-    elsif saved_change_to_status? && status == "closed"
+    elsif saved_change_to_status? && status == "closed" && setting.notify_on_solution
       requester&.send_system_chat_notice(
         "🔒 Cierre: El ticket ##{ticket_number} ha sido cerrado formalmente.",
         "/tickets/#{id}"

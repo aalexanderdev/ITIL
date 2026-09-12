@@ -40,9 +40,10 @@ class TicketUpdate < ApplicationRecord
   private
 
   def dispatch_chat_notice
+    setting = ChatSetting.current
     link = "/tickets/#{ticket.id}"
 
-    if comment?
+    if comment? && setting.notify_on_comment
       if ticket.requester && ticket.requester_id != user_id
         ticket.requester.send_system_chat_notice(
           "💬 Nuevo seguimiento en Ticket ##{ticket.ticket_number} por #{user.full_name}: #{content.truncate(80)}",
@@ -55,14 +56,14 @@ class TicketUpdate < ApplicationRecord
           link
         )
       end
-    elsif solution?
+    elsif solution? && setting.notify_on_solution
       if ticket.requester && ticket.requester_id != user_id
         ticket.requester.send_system_chat_notice(
           "🏆 Solución registrada en Ticket ##{ticket.ticket_number}: #{content.truncate(80)}",
           link
         )
       end
-    elsif private?
+    elsif private? && setting.notify_on_private_note
       # Only notify assigned tech if not the author
       if ticket.assigned_to && ticket.assigned_to_id != user_id
         ticket.assigned_to.send_system_chat_notice(

@@ -51,6 +51,13 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 - **Presence & Collaboration**: Live heartbeat status (online/offline), typing indicators, double-check read receipts, and message emoji reactions.
 - **Zero External Overhead**: 100% native Rails 8 Active Record implementation without external Redis or third-party WebSocket server requirements.
 
+### 7. Administrative HelpdeskChat Settings Panel
+- **Branding & Appearance**: Custom hex color pickers with real-time sync for launcher icon, message bubbles, and user mentions.
+- **Layout & Typography**: Adjustable panel width (320px to 700px) and font size slider (11px to 20px) with live typography preview.
+- **Real-Time Polling & Performance**: Configurable refresh intervals for messages, conversation lists, online presence heartbeats, and maximum message lengths.
+- **Feature & Privacy Toggles**: One-click administrative control over presence indicators, typing status, read receipts (double check), and notification sounds.
+- **ITSM Policy Management**: Fine-tune message-to-ticket conversion options and enable/disable automated notifications for assignments, resolutions, comments, and internal notes.
+
 ---
 
 ## Technology Stack
@@ -125,8 +132,8 @@ bin/rails test
 
 All tests should pass with 0 failures and 0 errors:
 ```text
-Running 41 tests in a single process
-41 runs, 155 assertions, 0 failures, 0 errors, 0 skips
+Running 51 tests in parallel using 12 processes
+51 runs, 206 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ---
@@ -142,11 +149,13 @@ Running 41 tests in a single process
 │   │   ├── assets_controller.rb            # ITAM / CMDB management
 │   │   ├── chat/                           # Native HelpdeskChat controllers
 │   │   │   ├── base_controller.rb
+│   │   │   ├── config_controller.rb        # AJAX Config API endpoint
 │   │   │   ├── conversations_controller.rb
 │   │   │   ├── messages_controller.rb
 │   │   │   ├── presence_controller.rb
 │   │   │   ├── tickets_controller.rb
 │   │   │   └── token_controller.rb
+│   │   ├── chat_settings_controller.rb     # Administrative HelpdeskChat panel
 │   │   ├── dashboard_controller.rb         # Real-time metrics
 │   │   ├── kb_articles_controller.rb       # Knowledge Base
 │   │   ├── sessions_controller.rb          # Authentication
@@ -159,10 +168,11 @@ Running 41 tests in a single process
 │   │   ├── chat_conversation.rb            # Direct, group, and self threads
 │   │   ├── chat_message.rb                 # Chat messages with reactions
 │   │   ├── chat_presence.rb                # Online/offline presence heartbeats
+│   │   ├── chat_setting.rb                 # Configuration singleton & defaults
 │   │   ├── ticket.rb                       # Ticket with ITIL matrix & SLA
 │   │   ├── ticket_update.rb                # Timeline updates & notice hooks
 │   │   └── user.rb                         # RBAC model (admin/tech/user)
-│   └── views/                              # Responsive view templates
+│   └── views/                              # Responsive view templates (tickets, assets, chat_settings...)
 ├── config/                                 # Routes, environments & Solid config
 ├── db/
 │   ├── migrate/                            # Active Record migrations
