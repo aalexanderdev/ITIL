@@ -1,0 +1,166 @@
+# This file is auto-generated from the current state of the database. Instead
+# of editing this file, please use the migrations feature of Active Record to
+# incrementally modify your database, and then regenerate this schema definition.
+#
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
+#
+# It's strongly recommended that you check this file into your version control system.
+
+ActiveRecord::Schema[8.1].define(version: 2026_09_11_182016) do
+  create_table "assets", force: :cascade do |t|
+    t.string "asset_tag", null: false
+    t.string "asset_type", default: "computer", null: false
+    t.string "cpu"
+    t.datetime "created_at", null: false
+    t.integer "department_id"
+    t.string "ip_address"
+    t.integer "location_id"
+    t.string "mac_address"
+    t.string "manufacturer"
+    t.string "model"
+    t.string "name", null: false
+    t.text "notes"
+    t.string "operating_system"
+    t.date "purchase_date"
+    t.integer "ram_gb"
+    t.string "serial_number"
+    t.string "status", default: "in_use", null: false
+    t.string "storage_capacity"
+    t.datetime "updated_at", null: false
+    t.integer "user_id"
+    t.date "warranty_expiry"
+    t.index ["asset_tag"], name: "index_assets_on_asset_tag", unique: true
+    t.index ["asset_type"], name: "index_assets_on_asset_type"
+    t.index ["department_id"], name: "index_assets_on_department_id"
+    t.index ["location_id"], name: "index_assets_on_location_id"
+    t.index ["serial_number"], name: "index_assets_on_serial_number"
+    t.index ["status"], name: "index_assets_on_status"
+    t.index ["user_id"], name: "index_assets_on_user_id"
+  end
+
+  create_table "departments", force: :cascade do |t|
+    t.string "code"
+    t.datetime "created_at", null: false
+    t.integer "location_id"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location_id"], name: "index_departments_on_location_id"
+  end
+
+  create_table "kb_articles", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.boolean "is_public", default: true, null: false
+    t.integer "ticket_category_id"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.integer "views_count", default: 0, null: false
+    t.index ["is_public"], name: "index_kb_articles_on_is_public"
+    t.index ["ticket_category_id"], name: "index_kb_articles_on_ticket_category_id"
+    t.index ["user_id"], name: "index_kb_articles_on_user_id"
+  end
+
+  create_table "locations", force: :cascade do |t|
+    t.string "building"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "floor"
+    t.string "name", null: false
+    t.string "room"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "ip_address"
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "ticket_categories", force: :cascade do |t|
+    t.string "color", default: "#4f46e5"
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "ticket_updates", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.string "solution_status"
+    t.integer "ticket_id", null: false
+    t.integer "time_spent_minutes", default: 0
+    t.string "update_type", default: "comment", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["ticket_id"], name: "index_ticket_updates_on_ticket_id"
+    t.index ["update_type"], name: "index_ticket_updates_on_update_type"
+    t.index ["user_id"], name: "index_ticket_updates_on_user_id"
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.integer "asset_id"
+    t.integer "assigned_to_id"
+    t.datetime "closed_at"
+    t.datetime "created_at", null: false
+    t.text "description", null: false
+    t.datetime "due_at"
+    t.integer "impact", default: 3, null: false
+    t.integer "priority", default: 3, null: false
+    t.integer "requester_id", null: false
+    t.datetime "resolved_at"
+    t.string "status", default: "new_ticket", null: false
+    t.integer "ticket_category_id"
+    t.string "ticket_number", null: false
+    t.string "ticket_type", default: "incident", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.integer "urgency", default: 3, null: false
+    t.index ["asset_id"], name: "index_tickets_on_asset_id"
+    t.index ["assigned_to_id"], name: "index_tickets_on_assigned_to_id"
+    t.index ["priority"], name: "index_tickets_on_priority"
+    t.index ["requester_id"], name: "index_tickets_on_requester_id"
+    t.index ["status"], name: "index_tickets_on_status"
+    t.index ["ticket_category_id"], name: "index_tickets_on_ticket_category_id"
+    t.index ["ticket_number"], name: "index_tickets_on_ticket_number", unique: true
+    t.index ["ticket_type"], name: "index_tickets_on_ticket_type"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
+    t.integer "department_id"
+    t.string "email_address", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "password_digest", null: false
+    t.string "phone"
+    t.string "role", default: "user", null: false
+    t.datetime "updated_at", null: false
+    t.index ["department_id"], name: "index_users_on_department_id"
+    t.index ["email_address"], name: "index_users_on_email_address", unique: true
+    t.index ["role"], name: "index_users_on_role"
+  end
+
+  add_foreign_key "assets", "departments"
+  add_foreign_key "assets", "locations"
+  add_foreign_key "assets", "users"
+  add_foreign_key "departments", "locations"
+  add_foreign_key "kb_articles", "ticket_categories"
+  add_foreign_key "kb_articles", "users"
+  add_foreign_key "sessions", "users"
+  add_foreign_key "ticket_updates", "tickets"
+  add_foreign_key "ticket_updates", "users"
+  add_foreign_key "tickets", "assets"
+  add_foreign_key "tickets", "ticket_categories"
+  add_foreign_key "tickets", "users", column: "assigned_to_id"
+  add_foreign_key "tickets", "users", column: "requester_id"
+end
