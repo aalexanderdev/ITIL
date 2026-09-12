@@ -17,4 +17,3 @@ class CreateUsers < ActiveRecord::Migration[8.1]
     add_index :users, :department_id
   end
 end
-

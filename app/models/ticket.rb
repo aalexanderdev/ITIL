@@ -144,11 +144,11 @@ class Ticket < ApplicationRecord
     # Matriz estándar ITIL
     # Matriz [urgency-1][impact-1] (donde 0 es Muy Bajo/Muy Baja, 4 es Muy Alto/Muy Alta)
     matrix = [
-      [1, 1, 2, 2, 3], # Urgencia 1 (Muy baja)
-      [1, 2, 2, 3, 4], # Urgencia 2 (Baja)
-      [2, 2, 3, 4, 4], # Urgencia 3 (Media)
-      [2, 3, 4, 5, 5], # Urgencia 4 (Alta)
-      [3, 4, 5, 5, 6]  # Urgencia 5 (Muy alta)
+      [ 1, 1, 2, 2, 3 ], # Urgencia 1 (Muy baja)
+      [ 1, 2, 2, 3, 4 ], # Urgencia 2 (Baja)
+      [ 2, 2, 3, 4, 4 ], # Urgencia 3 (Media)
+      [ 2, 3, 4, 5, 5 ], # Urgencia 4 (Alta)
+      [ 3, 4, 5, 5, 6 ]  # Urgencia 5 (Muy alta)
     ]
     u = (urgency.presence || 3).clamp(1, 5) - 1
     i = (impact.presence || 3).clamp(1, 5) - 1
@@ -159,13 +159,13 @@ class Ticket < ApplicationRecord
     return if due_at.present?
 
     hours = case priority
-            when 6 then 4.hours
-            when 5 then 8.hours
-            when 4 then 24.hours
-            when 3 then 48.hours
-            when 2 then 72.hours
-            else 120.hours
-            end
+    when 6 then 4.hours
+    when 5 then 8.hours
+    when 4 then 24.hours
+    when 3 then 48.hours
+    when 2 then 72.hours
+    else 120.hours
+    end
     self.due_at = Time.current + hours
   end
 
@@ -204,4 +204,3 @@ class Ticket < ApplicationRecord
     end
   end
 end
-

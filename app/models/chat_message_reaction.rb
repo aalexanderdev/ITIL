@@ -3,5 +3,5 @@ class ChatMessageReaction < ApplicationRecord
   belongs_to :user
 
   validates :emoji, presence: true
-  validates :user_id, uniqueness: { scope: [:chat_message_id, :emoji] }
+  validates :user_id, uniqueness: { scope: [ :chat_message_id, :emoji ] }
 end

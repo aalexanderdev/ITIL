@@ -5,7 +5,7 @@ class Location < ApplicationRecord
   validates :name, presence: true, uniqueness: true
 
   def full_location
-    parts = [name]
+    parts = [ name ]
     parts << "Edif. #{building}" if building.present?
     parts << "Piso #{floor}" if floor.present?
     parts << "Sala/Oficina #{room}" if room.present?

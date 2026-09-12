@@ -3,7 +3,7 @@ class DashboardController < ApplicationController
     @total_tickets = Ticket.count
     @open_tickets = Ticket.open_tickets.count
     @solved_tickets = Ticket.where(status: %w[solved closed]).count
-    @critical_tickets = Ticket.open_tickets.where(priority: [5, 6]).count
+    @critical_tickets = Ticket.open_tickets.where(priority: [ 5, 6 ]).count
     @total_assets = Asset.count
 
     if current_user.staff?

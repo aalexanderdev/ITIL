@@ -19,7 +19,7 @@ class CreateChatTables < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :chat_conversation_users, [:chat_conversation_id, :user_id], unique: true, name: "idx_chat_conv_users_unique"
+    add_index :chat_conversation_users, [ :chat_conversation_id, :user_id ], unique: true, name: "idx_chat_conv_users_unique"
 
     create_table :chat_messages do |t|
       t.references :chat_conversation, null: false, foreign_key: true
@@ -40,7 +40,7 @@ class CreateChatTables < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :chat_message_reactions, [:chat_message_id, :user_id, :emoji], unique: true, name: "idx_chat_reactions_unique"
+    add_index :chat_message_reactions, [ :chat_message_id, :user_id, :emoji ], unique: true, name: "idx_chat_reactions_unique"
 
     create_table :chat_presences do |t|
       t.references :user, null: false, foreign_key: true, index: { unique: true }

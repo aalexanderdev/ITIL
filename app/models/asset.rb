@@ -72,12 +72,12 @@ class Asset < ApplicationRecord
     return if asset_tag.present?
 
     prefix = case asset_type
-             when "computer" then "PC"
-             when "server" then "SRV"
-             when "network_device" then "NET"
-             when "printer" then "PRN"
-             else "AST"
-             end
+    when "computer" then "PC"
+    when "server" then "SRV"
+    when "network_device" then "NET"
+    when "printer" then "PRN"
+    else "AST"
+    end
     self.asset_tag = "#{prefix}-#{SecureRandom.alphanumeric(6).upcase}"
   end
 end
