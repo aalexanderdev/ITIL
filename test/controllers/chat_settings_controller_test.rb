@@ -28,7 +28,7 @@ class ChatSettingsControllerTest < ActionDispatch::IntegrationTest
 
     patch chat_settings_path, params: {
       chat_setting: {
-        panel_width_px: 450,
+        panel_width_px: 400,
         bubble_color: "#10b981",
         launcher_color: "#059669",
         font_size: 16,
@@ -42,7 +42,7 @@ class ChatSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_match "actualizada exitosamente", response.body
 
     setting = ChatSetting.current.reload
-    assert_equal 450, setting.panel_width_px
+    assert_equal 400, setting.panel_width_px
     assert_equal "#10b981", setting.bubble_color
     assert_equal "#059669", setting.launcher_color
     assert_equal 16, setting.font_size
@@ -53,7 +53,7 @@ class ChatSettingsControllerTest < ActionDispatch::IntegrationTest
     get "/chat/ajax/token"
     assert_response :success
     json = JSON.parse(response.body)
-    assert_equal 450, json["panel_width_px"]
+    assert_equal 400, json["panel_width_px"]
     assert_equal "#10b981", json["bubble_color"]
     assert_equal "#059669", json["launcher_color"]
     assert_equal 16, json["font_size"]

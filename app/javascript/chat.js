@@ -342,7 +342,7 @@
     const newBtn = ui.header && ui.header.querySelector(".plugin-chat-new");
     if (newBtn) newBtn.title = __("new_chat", "Nueva conversación");
     const starBtn =
-      ui.threadView && ui.threadView.querySelector(".plugin-chat-star");
+      ui.panel && ui.panel.querySelector(".plugin-chat-star");
     if (starBtn)
       starBtn.title =
         currentConversation && currentConversation.featured
@@ -357,9 +357,16 @@
     const sendBtn =
       ui.threadView && ui.threadView.querySelector(".plugin-chat-send");
     if (sendBtn) sendBtn.title = __("send", "Enviar");
-    const backBtn =
-      ui.threadView && ui.threadView.querySelector(".plugin-chat-back");
-    if (backBtn) backBtn.title = __("back", "Volver");
+    const backBtns =
+      ui.panel && ui.panel.querySelectorAll(".plugin-chat-back");
+    if (backBtns) {
+      backBtns.forEach((btn) => (btn.title = __("back", "Volver")));
+    }
+    const brandTitles =
+      ui.panel && ui.panel.querySelectorAll(".plugin-chat-brand-title");
+    if (brandTitles && brandTitles[0]) {
+      brandTitles[0].textContent = __("chat", "Chat");
+    }
     const removeAttachBtn =
       ui.threadView &&
       ui.threadView.querySelector(".plugin-chat-staged-remove-btn");
@@ -878,7 +885,10 @@
   // ---------- UI scaffolding ----------
 
   function buildLauncher() {
-    const launcher = el("div", { class: "plugin-chat-launcher" });
+    const launcher = el("div", {
+      id: "plugin-chat-launcher",
+      class: "plugin-chat-launcher",
+    });
     const btn = el(
       "button",
       {
@@ -1043,17 +1053,20 @@
 
   function buildPanel() {
     const backdrop = el("div", {
+      id: "plugin-chat-backdrop",
       class: "plugin-chat-backdrop",
       style: "display:none",
     });
     document.body.appendChild(backdrop);
 
     const panel = el("div", {
+      id: "plugin-chat-panel",
       class: "plugin-chat-panel",
       style: "display:none",
     });
 
-    const header = el("div", { class: "plugin-chat-header" }, [
+    // Unified Header: contextual sections for List, Thread, and New Chat views
+    const headerList = el("div", { class: "plugin-chat-header-list" }, [
       el(
         "button",
         {
@@ -1063,26 +1076,101 @@
         },
         [iconEl("close")],
       ),
+      el("span", {
+        class: "plugin-chat-brand-title",
+        text: __("chat", "Chat"),
+      }),
       el("span", { class: "plugin-chat-header-spacer" }),
-      el(
-        "button",
-        {
-          class: "plugin-chat-pin-btn plugin-chat-icon-btn",
+    ]);
+
+    const headerThread = el(
+      "div",
+      { class: "plugin-chat-header-thread", style: "display:none" },
+      [
+        el("button", {
+          class: "plugin-chat-back plugin-chat-icon-btn",
           type: "button",
-          title: __("pin_panel", "Fijar el chat"),
-        },
-        [iconEl("pin")],
-      ),
-      el(
-        "button",
-        {
-          class:
-            "plugin-chat-new plugin-chat-icon-btn plugin-chat-icon-btn-chip",
+          title: __("back", "Volver"),
+          text: "\u2190",
+        }),
+        avatarEl("", "plugin-chat-thread-avatar"),
+        el("div", { class: "plugin-chat-thread-title-wrap" }, [
+          el("span", { class: "plugin-chat-thread-title" }),
+        ]),
+      ],
+    );
+
+    const headerNew = el(
+      "div",
+      { class: "plugin-chat-header-new", style: "display:none" },
+      [
+        el("button", {
+          class: "plugin-chat-back plugin-chat-icon-btn",
           type: "button",
-          title: __("new_chat", "Nueva conversación"),
-        },
-        [iconEl("person")],
-      ),
+          title: __("back", "Volver"),
+          text: "\u2190",
+        }),
+        el("span", {
+          class: "plugin-chat-brand-title",
+          text: __("new_chat", "Nueva conversación"),
+        }),
+        el("span", { class: "plugin-chat-header-spacer" }),
+      ],
+    );
+
+    const starBtn = el(
+      "button",
+      {
+        class:
+          "plugin-chat-star plugin-chat-icon-btn plugin-chat-icon-btn-chip",
+        type: "button",
+        style: "display:none",
+        title: __("star_conversation", "Destacar conversación"),
+      },
+      [iconEl("starOutline")],
+    );
+
+    const newBtn = el(
+      "button",
+      {
+        class:
+          "plugin-chat-new plugin-chat-icon-btn plugin-chat-icon-btn-chip",
+        type: "button",
+        title: __("new_chat", "Nueva conversación"),
+      },
+      [iconEl("person")],
+    );
+
+    const pinBtn = el(
+      "button",
+      {
+        class: "plugin-chat-pin-btn plugin-chat-icon-btn",
+        type: "button",
+        title: __("pin_panel", "Fijar el chat"),
+      },
+      [iconEl("pin")],
+    );
+
+    const threadCloseBtn = el(
+      "button",
+      {
+        class:
+          "plugin-chat-close plugin-chat-icon-btn plugin-chat-thread-close-btn",
+        type: "button",
+        style: "display:none",
+        title: __("close", "Cerrar"),
+      },
+      [iconEl("close")],
+    );
+
+    const header = el("div", { class: "plugin-chat-header" }, [
+      headerList,
+      headerThread,
+      headerNew,
+      starBtn,
+      newBtn,
+      pinBtn,
+      threadCloseBtn,
     ]);
 
     const search = el("input", {
@@ -1127,29 +1215,6 @@
       "div",
       { class: "plugin-chat-thread-view", style: "display:none" },
       [
-        el("div", { class: "plugin-chat-thread-header" }, [
-          el("button", {
-            class: "plugin-chat-back",
-            type: "button",
-            title: __("back", "Volver"),
-            text: "\u2190",
-          }),
-          avatarEl("", "plugin-chat-thread-avatar"),
-          el("div", { class: "plugin-chat-thread-title-wrap" }, [
-            el("span", { class: "plugin-chat-thread-title" }),
-          ]),
-          el("span", { class: "plugin-chat-header-spacer" }),
-          el(
-            "button",
-            {
-              class:
-                "plugin-chat-star plugin-chat-icon-btn plugin-chat-icon-btn-chip",
-              type: "button",
-              title: __("star_conversation", "Destacar conversación"),
-            },
-            [iconEl("starOutline")],
-          ),
-        ]),
         el("div", { class: "plugin-chat-messages" }),
         el(
           "div",
@@ -1259,6 +1324,9 @@
       panel,
       backdrop,
       header,
+      headerList,
+      headerThread,
+      headerNew,
       search,
       listView,
       newChatView,
@@ -1496,7 +1564,7 @@
 
   let ui = null;
 
-  // Synchronizes chat panel header height with GLPI's native top navbar
+  // Synchronizes chat panel header height with GLPI's native top navbar (+1px to match native border alignment)
   function syncHeaderHeight() {
     try {
       const glpiHeader = document.querySelector(
@@ -1505,7 +1573,7 @@
       if (glpiHeader) {
         const rect = glpiHeader.getBoundingClientRect();
         if (rect && rect.height > 0) {
-          const h = Math.round(rect.height);
+          const h = Math.round(rect.height) + 1;
           document.documentElement.style.setProperty(
             "--chat-header-height",
             h + "px"
@@ -1595,6 +1663,18 @@
     lastTypingSentTime = 0;
     updateTypingIndicator([]);
 
+    if (ui.headerList) ui.headerList.style.display = "flex";
+    if (ui.headerThread) ui.headerThread.style.display = "none";
+    if (ui.headerNew) ui.headerNew.style.display = "none";
+
+    const starBtn = ui.header && ui.header.querySelector(".plugin-chat-star");
+    if (starBtn) starBtn.style.display = "none";
+    const newBtn = ui.header && ui.header.querySelector(".plugin-chat-new");
+    if (newBtn) newBtn.style.display = "";
+    const threadCloseBtn =
+      ui.header && ui.header.querySelector(".plugin-chat-thread-close-btn");
+    if (threadCloseBtn) threadCloseBtn.style.display = "none";
+
     ui.listView.style.display = "block";
     ui.newChatView.style.display = "none";
     ui.threadView.style.display = "none";
@@ -1620,10 +1700,28 @@
     closeEmojiPicker();
     closeEmojiSuggestions();
     clearPendingAttachment();
+
+    if (ui.headerList) ui.headerList.style.display = "none";
+    if (ui.headerThread) ui.headerThread.style.display = "none";
+    if (ui.headerNew) ui.headerNew.style.display = "flex";
+
+    const starBtn = ui.header && ui.header.querySelector(".plugin-chat-star");
+    if (starBtn) starBtn.style.display = "none";
+    const newBtn = ui.header && ui.header.querySelector(".plugin-chat-new");
+    if (newBtn) newBtn.style.display = "none";
+    const threadCloseBtn =
+      ui.header && ui.header.querySelector(".plugin-chat-thread-close-btn");
+    if (threadCloseBtn) threadCloseBtn.style.display = "";
+
     ui.listView.style.display = "none";
     ui.newChatView.style.display = "block";
     ui.threadView.style.display = "none";
     ui.search.style.display = "none";
+
+    const userSearch = ui.newChatView.querySelector(".plugin-chat-user-search");
+    if (userSearch) {
+      setTimeout(() => userSearch.focus(), 0);
+    }
   }
 
   function showThreadView(conv) {
@@ -1641,6 +1739,17 @@
 
     setActiveRow(null);
     clearPendingAttachment();
+
+    if (ui.headerList) ui.headerList.style.display = "none";
+    if (ui.headerThread) ui.headerThread.style.display = "flex";
+    if (ui.headerNew) ui.headerNew.style.display = "none";
+
+    const newBtn = ui.header && ui.header.querySelector(".plugin-chat-new");
+    if (newBtn) newBtn.style.display = "none";
+    const threadCloseBtn =
+      ui.header && ui.header.querySelector(".plugin-chat-thread-close-btn");
+    if (threadCloseBtn) threadCloseBtn.style.display = "";
+
     ui.listView.style.display = "none";
     ui.newChatView.style.display = "none";
     ui.threadView.style.display = "flex";
@@ -1658,13 +1767,18 @@
     closeMentionSuggestions();
     closeEmojiSuggestions();
     closeReceiptsPanel();
-    ui.threadView.querySelector(".plugin-chat-thread-title").textContent =
-      conv.name;
-    ui.threadView.querySelector(".plugin-chat-thread-avatar").textContent =
-      initialsFromName(conv.name);
+
+    const titleEl = ui.panel.querySelector(".plugin-chat-thread-title");
+    if (titleEl) {
+      titleEl.textContent = conv.name;
+      titleEl.title = conv.name;
+    }
+    const avatarEl = ui.panel.querySelector(".plugin-chat-thread-avatar");
+    if (avatarEl) avatarEl.textContent = initialsFromName(conv.name);
+
     ui.threadView.querySelector(".plugin-chat-messages").innerHTML = "";
 
-    const starBtn = ui.threadView.querySelector(".plugin-chat-star");
+    const starBtn = ui.panel.querySelector(".plugin-chat-star");
     if (starBtn) {
       if (conv.id) {
         starBtn.style.display = "";
@@ -2559,16 +2673,21 @@
   function openPrefilledTicketForm(m, categoryId) {
     const params = new URLSearchParams();
     let text = m.content || "";
+    if (
+      m.attachment &&
+      m.attachment.filename &&
+      (!text || !text.includes(m.attachment.filename))
+    ) {
+      text += (text ? "\n\n" : "") + "📎 " + m.attachment.filename;
+    }
     params.set("ticket[description]", text);
     params.set("ticket[title]", "Ticket desde Chat: " + (text.length > 40 ? text.substring(0, 40) + "..." : text));
     if (categoryId) {
       params.set("ticket[ticket_category_id]", categoryId);
     }
-
     window.open("/tickets/new?" + params.toString(), "_blank");
     closeReceiptsPanel();
   }
-
 
   // ---------- data loading ----------
 
@@ -2736,7 +2855,10 @@
     if (stagedWrap) {
       const nameEl = stagedWrap.querySelector(".plugin-chat-staged-file-name");
       const sizeEl = stagedWrap.querySelector(".plugin-chat-staged-file-size");
-      if (nameEl) nameEl.textContent = file.name;
+      if (nameEl) {
+        nameEl.textContent = file.name;
+        nameEl.title = file.name;
+      }
       if (sizeEl) sizeEl.textContent = formatBytes(file.size);
       stagedWrap.style.display = "flex";
     }
@@ -2887,7 +3009,49 @@
     }
   }
 
-  // Dynamically imports the emoji-picker-element custom element
+  function isGLPIDarkTheme() {
+    const doc = document.documentElement;
+    const body = document.body;
+    if (
+      (doc && (doc.getAttribute("data-glpi-theme-dark") === "1" || doc.classList.contains("vh-dark-mode") || doc.classList.contains("dark"))) ||
+      (body && (body.classList.contains("vh-dark-mode") || body.classList.contains("dark") || body.classList.contains("theme-dark")))
+    ) return true;
+    const glpiTheme = (
+      (doc && doc.getAttribute("data-glpi-theme")) ||
+      (body && body.getAttribute("data-glpi-theme")) ||
+      ""
+    ).toLowerCase();
+    if (["dark", "darker", "auror_dark", "midnight"].includes(glpiTheme)) return true;
+    if (
+      (doc && doc.getAttribute("data-bs-theme") === "dark") ||
+      (body && body.getAttribute("data-bs-theme") === "dark")
+    ) return true;
+    if (
+      (doc && doc.getAttribute("data-theme") === "dark") ||
+      (body && body.getAttribute("data-theme") === "dark")
+    ) return true;
+    return false;
+  }
+
+  function syncDarkTheme() {
+    const isDark = isGLPIDarkTheme();
+    if (ui && ui.panel) {
+      ui.panel.classList.toggle("chat-dark-theme", isDark);
+      ui.panel.setAttribute("data-bs-theme", isDark ? "dark" : "light");
+    }
+    if (ui && ui.launcher) {
+      ui.launcher.classList.toggle("chat-dark-theme", isDark);
+      ui.launcher.setAttribute("data-bs-theme", isDark ? "dark" : "light");
+    }
+    if (ui && ui.backdrop) {
+      ui.backdrop.classList.toggle("chat-dark-theme", isDark);
+    }
+    if (emojiPickerEl) {
+      emojiPickerEl.classList.toggle("dark", isDark);
+    }
+  }
+
+  // Loads and inserts the emoji picker custom element
   async function loadEmojiPicker() {
     if (!emojiPickerModuleLoaded) {
       await import(VENDOR_BASE + "emoji-picker-element/picker.js");
@@ -2905,6 +3069,7 @@
       );
       emojiPickerEl.setAttribute("locale", "es");
       emojiPickerEl.classList.add("plugin-chat-emoji-picker");
+      emojiPickerEl.classList.toggle("dark", isGLPIDarkTheme());
       emojiPickerEl.style.setProperty(
         "--indicator-color",
         "var(--chat-bubble-color, var(--chat-teal))",
@@ -2956,6 +3121,7 @@
   // Positions emoji picker popover
   function positionEmojiPicker(triggerBtn) {
     if (!emojiPickerEl || !triggerBtn) return;
+    emojiPickerEl.classList.toggle("dark", isGLPIDarkTheme());
     const rect = triggerBtn.getBoundingClientRect();
     const pickerWidth = 320;
     const pickerHeight = 360;
@@ -3014,7 +3180,7 @@
         if (res && res.id) {
           currentConversation.id = res.id;
           currentConversation.is_draft = false;
-          const starBtn = ui.threadView.querySelector(".plugin-chat-star");
+          const starBtn = ui.panel.querySelector(".plugin-chat-star");
           if (starBtn) {
             starBtn.style.display = "";
             renderStarButton(starBtn, !!currentConversation.featured);
@@ -3847,7 +4013,9 @@
     }
     if (
       document.getElementById("plugin-chat-launcher") ||
-      document.getElementById("plugin-chat-panel")
+      document.getElementById("plugin-chat-panel") ||
+      document.querySelector(".plugin-chat-launcher") ||
+      document.querySelector(".plugin-chat-panel")
     ) {
       return;
     }
@@ -3918,8 +4086,8 @@
     });
 
     ui.panel
-      .querySelector(".plugin-chat-close")
-      .addEventListener("click", togglePanel);
+      .querySelectorAll(".plugin-chat-close")
+      .forEach((btn) => btn.addEventListener("click", togglePanel));
     ui.backdrop.addEventListener("click", togglePanel);
     ui.panel
       .querySelector(".plugin-chat-pin-btn")
@@ -3931,13 +4099,13 @@
       .querySelector(".plugin-chat-new")
       .addEventListener("click", showNewChatView);
     ui.panel
-      .querySelector(".plugin-chat-back")
-      .addEventListener("click", showListView);
+      .querySelectorAll(".plugin-chat-back")
+      .forEach((btn) => btn.addEventListener("click", showListView));
     ui.panel
       .querySelector(".plugin-chat-star")
       .addEventListener("click", () => {
         if (!currentConversation) return;
-        const starBtn = ui.threadView.querySelector(".plugin-chat-star");
+        const starBtn = ui.panel.querySelector(".plugin-chat-star");
         toggleFeatured(currentConversation, (featured) =>
           renderStarButton(starBtn, featured),
         );
@@ -4307,6 +4475,62 @@
         }
       } catch (e) {}
     }
+
+    syncDarkTheme();
+    if (window.MutationObserver) {
+      try {
+        const themeObserver = new MutationObserver(syncDarkTheme);
+        themeObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: [
+            "data-glpi-theme",
+            "data-glpi-theme-dark",
+            "data-bs-theme",
+            "data-theme",
+            "class",
+          ],
+        });
+        if (document.body) {
+          themeObserver.observe(document.body, {
+            attributes: true,
+            attributeFilter: [
+              "data-glpi-theme",
+              "data-glpi-theme-dark",
+              "data-bs-theme",
+              "data-theme",
+              "class",
+            ],
+          });
+        }
+      } catch (e) {}
+    }
+  }
+
+  function cleanupDuplicates() {
+    const launchers = document.querySelectorAll(
+      ".plugin-chat-launcher, #plugin-chat-launcher"
+    );
+    if (launchers.length > 1) {
+      for (let i = 1; i < launchers.length; i++) {
+        launchers[i].remove();
+      }
+    }
+    const panels = document.querySelectorAll(
+      ".plugin-chat-panel, #plugin-chat-panel"
+    );
+    if (panels.length > 1) {
+      for (let i = 1; i < panels.length; i++) {
+        panels[i].remove();
+      }
+    }
+    const backdrops = document.querySelectorAll(
+      ".plugin-chat-backdrop, #plugin-chat-backdrop"
+    );
+    if (backdrops.length > 1) {
+      for (let i = 1; i < backdrops.length; i++) {
+        backdrops[i].remove();
+      }
+    }
   }
 
   if (document.readyState === "loading") {
@@ -4315,10 +4539,25 @@
     init();
   }
 
-  document.addEventListener("turbo:load", function() {
-    if (!document.getElementById("plugin-chat-launcher")) {
+  document.addEventListener("turbo:load", function () {
+    cleanupDuplicates();
+    if (
+      !document.getElementById("plugin-chat-launcher") &&
+      !document.querySelector(".plugin-chat-launcher")
+    ) {
       init();
+    } else {
+      syncHeaderHeight();
+      syncDarkTheme();
+    }
+  });
+
+  document.addEventListener("turbo:before-cache", function () {
+    if (ui) {
+      if (ui.shortcutMenu) closeShortcutMenu(ui.shortcutMenu);
+      closeReceiptsPanel();
+      closeShortcutsPanel();
+      closeEmojiPicker();
     }
   });
 })();
-

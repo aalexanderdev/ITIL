@@ -7,7 +7,7 @@ class ChatSetting < ApplicationRecord
 
   HEX_COLOR_REGEX = /\A#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\z/
 
-  validates :panel_width_px, numericality: { greater_than_or_equal_to: 300, less_than_or_equal_to: 800 }
+  validates :panel_width_px, numericality: { greater_than_or_equal_to: 320, less_than_or_equal_to: 420 }
   validates :font_size, numericality: { greater_than_or_equal_to: 10, less_than_or_equal_to: 24 }
   validates :bubble_color, :mention_color, :launcher_color, presence: true, format: { with: HEX_COLOR_REGEX }
   validates :poll_messages_ms, numericality: { greater_than_or_equal_to: 500, less_than_or_equal_to: 30000 }
