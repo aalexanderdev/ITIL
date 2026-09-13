@@ -508,12 +508,12 @@ html.vh-dark-mode .vh-panel-footer {
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--vh-primary, #4f46e5), var(--vh-accent, #06b6d4));
+  background: var(--vh-primary, #4f46e5);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
