@@ -79,6 +79,13 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
   - Dyslexia-friendly typography and adjustable text/line spacing.
 - **Administrative Theming & Branding**: Centralized administration console (`/visualhub_settings`) to customize system branding (application name, logo, login greeting), primary and accent color palettes, and default accessibility preferences.
 
+### 9. OpenITIL Bottom Navigation Dock & Full-Width Workspace
+- **100% Horizontal Screen Utilization**: The traditional fixed sidebar is replaced with a centered, floating bottom dock, freeing up full horizontal screen real estate for ITSM data tables, incident management, and hardware CMDB trees.
+- **Collapsible / Minimizable Floating Dock**: A discreet toggle handle allows collapsing the dock downwards with a smooth cubic-bezier transition, revealing only a compact peek handle. Preference state is persisted in `localStorage`.
+- **Keyboard Ergonomics**: Toggle the navigation dock instantly from anywhere with the `Alt + M` keyboard shortcut.
+- **Upward Administration Popover**: Administrators have quick access to User, Profile, Department, HelpdeskChat, and VisualHub administration via a floating glassmorphic popover menu oriented upwards.
+- **Edge-to-Edge Top App Bar**: Displays company branding, global search, instant dark mode switch, quick "+ New Ticket" action, and user profile capsule.
+
 ---
 
 ## Technology Stack
@@ -189,6 +196,8 @@ Running 72 tests in parallel using 12 processes
 │   │   └── visualhub_settings_controller.rb# VisualHub & WCAG 2.2 administration
 │   ├── javascript/
 │   │   ├── chat.js                         # HelpdeskChat UI engine & event loop
+│   │   ├── controllers/
+│   │   │   └── dock_controller.js          # Collapsible bottom dock Stimulus controller
 │   │   └── visualhub.js                    # WCAG 2.2 speech synthesis & assistive engine
 │   ├── models/
 │   │   ├── asset.rb                        # Hardware asset model

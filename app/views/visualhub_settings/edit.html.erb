@@ -88,12 +88,12 @@
         </div>
 
         <div class="form-group">
-          <%= f.label :sidebar_bg, "Fondo de Barra Lateral", class: "form-label" %>
+          <%= f.label :sidebar_bg, "Fondo de Dock de Navegación", class: "form-label" %>
           <div style="display: flex; gap: 10px; align-items: center;">
             <%= f.color_field :sidebar_bg, id: "setting_sidebar_bg", style: "width: 44px; height: 38px; border: 1px solid var(--slate-300); border-radius: var(--radius-sm); cursor: pointer; padding: 2px;" %>
             <input type="text" class="form-control" style="max-width: 120px; font-family: monospace;" value="<%= @setting.sidebar_bg %>" oninput="document.getElementById('setting_sidebar_bg').value = this.value">
           </div>
-          <small style="color: var(--slate-500); font-size: 0.775rem;">Color base del menú lateral de navegación.</small>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Color base del dock inferior flotante de navegación.</small>
         </div>
 
         <div class="form-group" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--slate-200);">

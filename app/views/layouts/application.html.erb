@@ -20,8 +20,8 @@
         --vh-accent: <%= vh_setting.accent_color %>;
         --vh-sidebar-bg: <%= vh_setting.sidebar_bg %>;
       }
-      .app-sidebar {
-        background-color: <%= vh_setting.sidebar_bg %> !important;
+      .app-bottom-dock, .dock-toggle-handle, .dock-admin-popover {
+        background-color: <%= vh_setting.sidebar_bg %>ee !important;
       }
     </style>
 
@@ -42,134 +42,62 @@
   <body>
     <% if authenticated? %>
       <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="app-sidebar">
-          <div class="sidebar-header">
-            <div class="brand-icon">
-              <% if vh_setting.logo_url.present? %>
-                <img src="<%= vh_setting.logo_url %>" alt="Logo" width="22" height="22" style="object-fit: contain;">
-              <% else %>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-                </svg>
-              <% end %>
-            </div>
-            <div>
-              <span class="brand-text"><%= vh_setting.app_name %></span>
-              <span class="brand-tag">ITSM</span>
-            </div>
-          </div>
-
-          <nav class="sidebar-nav">
-            <div class="nav-section-title">Principal</div>
-            
-            <%= link_to root_path, class: "nav-item #{'active' if current_page?(root_path)}" do %>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-              <span>Panel de Control</span>
-            <% end %>
-
-            <div class="nav-section-title">Helpdesk / Servicios</div>
-
-            <%= link_to tickets_path, class: "nav-item #{'active' if controller_name == 'tickets'}" do %>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 5H9a2 2 0 0 0-2 2v14l5-3 5 3V7a2 2 0 0 0-2-2Z"/><path d="M10 2h4"/></svg>
-              <span>Tickets e Incidencias</span>
-              <% open_count = Ticket.open_tickets.count %>
-              <% if open_count > 0 %>
-                <span class="nav-badge"><%= open_count %></span>
-              <% end %>
-            <% end %>
-
-            <%= link_to new_ticket_path, class: "nav-item" do %>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
-              <span>Crear Ticket</span>
-            <% end %>
-
-            <div class="nav-section-title">Inventario / CMDB</div>
-
-            <%= link_to assets_path, class: "nav-item #{'active' if controller_name == 'assets'}" do %>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
-              <span>Activos de TI</span>
-              <span class="nav-badge"><%= Asset.count %></span>
-            <% end %>
-
-            <div class="nav-section-title">Conocimiento</div>
-
-            <%= link_to kb_articles_path, class: "nav-item #{'active' if controller_name == 'kb_articles'}" do %>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
-              <span>Base de Conocimiento</span>
-            <% end %>
-
-            <% if current_user&.admin? %>
-              <div class="nav-section-title">Administración</div>
-
-              <%= link_to users_path, class: "nav-item #{'active' if controller_name == 'users'}" do %>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <span>Usuarios</span>
-              <% end %>
-
-              <%= link_to profiles_path, class: "nav-item #{'active' if controller_name == 'profiles'}" do %>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>Perfiles y Permisos</span>
-              <% end %>
-
-              <%= link_to departments_path, class: "nav-item #{'active' if controller_name == 'departments'}" do %>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-                <span>Departamentos y Sedes</span>
-              <% end %>
-
-              <%= link_to edit_chat_settings_path, class: "nav-item #{'active' if controller_name == 'chat_settings'}" do %>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="12" y1="7" x2="12" y2="13"/></svg>
-                <span>Configuración de Chat</span>
-              <% end %>
-
-              <%= link_to edit_visualhub_settings_path, class: "nav-item #{'active' if controller_name == 'visualhub_settings'}" do %>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
-                <span>VisualHub & Accesibilidad</span>
-              <% end %>
-            <% end %>
-          </nav>
-
-          <div class="sidebar-footer">
-            <%= link_to user_profile_path, style: "display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; flex: 1; min-width: 0;", title: "Ver Mi Perfil" do %>
-              <div class="user-avatar">
-                <%= current_user.first_name&.first || current_user.email_address.first.upcase %>
+        <!-- Full-Width Top Header / App Bar -->
+        <header class="app-header">
+          <div class="header-left">
+            <%= link_to root_path, class: "header-brand", title: "#{vh_setting.app_name} - Ir al Panel de Control" do %>
+              <div class="brand-icon">
+                <% if vh_setting.logo_url.present? %>
+                  <img src="<%= vh_setting.logo_url %>" alt="Logo" width="22" height="22" style="object-fit: contain;">
+                <% else %>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                  </svg>
+                <% end %>
               </div>
-              <div class="user-info">
-                <div class="user-name"><%= current_user.full_name %></div>
-                <div class="user-role"><%= current_user.effective_profile&.name || current_user.role.titleize %></div>
+              <div class="brand-info">
+                <span class="brand-text"><%= vh_setting.app_name %></span>
+                <span class="brand-tag">ITSM</span>
               </div>
             <% end %>
-            <%= button_to session_path, method: :delete, class: "btn-secondary btn-sm", style: "border:none; background: transparent; color: #94a3b8; padding: 4px;", title: "Cerrar Sesión" do %>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-            <% end %>
-          </div>
-        </aside>
 
-        <!-- Main Content Wrapper -->
-        <div class="app-main">
-          <header class="app-header">
             <div class="header-search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate-400)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
               <input type="text" placeholder="Buscar tickets, activos, números de serie...">
             </div>
+          </div>
 
-            <div class="header-actions">
-              <!-- Quick Dark Mode Switch -->
-              <button type="button" class="btn btn-secondary btn-sm" onclick="window.toggleOpenITILDarkMode()" title="Alternar Modo Oscuro / Claro" aria-label="Alternar Modo Oscuro" style="padding: 6px 10px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-              </button>
+          <div class="header-actions">
+            <!-- Quick Dark Mode Switch -->
+            <button type="button" class="btn btn-secondary btn-sm" onclick="window.toggleOpenITILDarkMode()" title="Alternar Modo Oscuro / Claro" aria-label="Alternar Modo Oscuro" style="padding: 6px 10px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </button>
 
-              <%= link_to new_ticket_path, class: "btn btn-primary btn-sm" do %>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <span>Nuevo Ticket</span>
+            <%= link_to new_ticket_path, class: "btn btn-primary btn-sm" do %>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Nuevo Ticket</span>
+            <% end %>
+
+            <!-- User Menu Pill -->
+            <div class="header-user-pill">
+              <%= link_to user_profile_path, class: "header-user-link", title: "Ver Mi Perfil" do %>
+                <div class="user-avatar-sm">
+                  <%= current_user.first_name&.first || current_user.email_address.first.upcase %>
+                </div>
+                <div class="header-user-details">
+                  <span class="header-user-name"><%= current_user.full_name %></span>
+                  <span class="badge badge-primary" style="font-size: 0.65rem; padding: 2px 6px;"><%= current_user.effective_profile&.name || current_user.role.upcase %></span>
+                </div>
               <% end %>
-
-              <div style="font-size: 0.85rem; color: var(--slate-600); font-weight: 500; display: flex; align-items: center; gap: 6px;">
-                <span class="badge badge-primary"><%= current_user.role.upcase %></span>
-              </div>
+              <%= button_to session_path, method: :delete, class: "btn-secondary btn-sm header-logout-btn", title: "Cerrar Sesión", aria_label: "Cerrar Sesión" do %>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+              <% end %>
             </div>
-          </header>
+          </div>
+        </header>
 
+        <!-- Main Content Area (Full Width) -->
+        <div class="app-main">
           <main class="content-wrapper">
             <!-- Flash Messages -->
             <% if notice.present? %>
@@ -189,6 +117,101 @@
             <%= yield %>
           </main>
         </div>
+
+        <!-- Floating Collapsible Bottom Navigation Dock -->
+        <nav class="app-bottom-dock-wrapper" data-controller="dock" data-dock-target="wrapper" aria-label="Navegación principal inferior">
+          <!-- Dock Collapse / Expand Handle -->
+          <button type="button" class="dock-toggle-handle" data-action="click->dock#toggle" data-dock-target="handle" aria-expanded="true" title="Colapsar barra de navegación (Alt + M)" aria-label="Colapsar barra de navegación (Alt + M)">
+            <svg class="dock-handle-chevron" data-dock-target="handleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <span class="dock-handle-text" data-dock-target="handleText">Menú</span>
+          </button>
+
+          <!-- Dock Bar -->
+          <div class="app-bottom-dock">
+            <%= link_to root_path, class: "dock-item #{'active' if current_page?(root_path)}", title: "Panel de Control" do %>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+              <span class="dock-label">Panel</span>
+            <% end %>
+
+            <%= link_to tickets_path, class: "dock-item #{'active' if controller_name == 'tickets' && action_name != 'new'}", title: "Tickets e Incidencias" do %>
+              <div class="dock-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 5H9a2 2 0 0 0-2 2v14l5-3 5 3V7a2 2 0 0 0-2-2Z"/><path d="M10 2h4"/></svg>
+                <% open_count = Ticket.open_tickets.count %>
+                <% if open_count > 0 %>
+                  <span class="dock-badge"><%= open_count %></span>
+                <% end %>
+              </div>
+              <span class="dock-label">Tickets</span>
+            <% end %>
+
+            <%= link_to new_ticket_path, class: "dock-item dock-item-highlight #{'active' if current_page?(new_ticket_path)}", title: "Crear Nueva Incidencia o Petición" do %>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              <span class="dock-label">Crear</span>
+            <% end %>
+
+            <%= link_to assets_path, class: "dock-item #{'active' if controller_name == 'assets'}", title: "Inventario / CMDB Activos de TI" do %>
+              <div class="dock-icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                <span class="dock-badge"><%= Asset.count %></span>
+              </div>
+              <span class="dock-label">Inventario</span>
+            <% end %>
+
+            <%= link_to kb_articles_path, class: "dock-item #{'active' if controller_name == 'kb_articles'}", title: "Base de Conocimiento" do %>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+              <span class="dock-label">Conocimiento</span>
+            <% end %>
+
+            <% if current_user&.admin? %>
+              <div class="dock-admin-container">
+                <button type="button" class="dock-item dock-admin-trigger <%= 'active' if %w[users profiles departments chat_settings visualhub_settings].include?(controller_name) %>" data-action="click->dock#toggleAdmin" data-dock-target="adminTrigger" aria-expanded="false" aria-haspopup="true" title="Menú de Administración">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span class="dock-label">Administración</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-left: -2px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                </button>
+
+                <!-- Admin Popover Flyout (floats upwards) -->
+                <div class="dock-admin-popover" data-dock-target="adminMenu" role="menu">
+                  <div class="dock-popover-title">Herramientas de Administración</div>
+                  
+                  <%= link_to users_path, class: "dock-admin-item #{'active' if controller_name == 'users'}", role: "menuitem" do %>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <span>Usuarios</span>
+                  <% end %>
+
+                  <%= link_to profiles_path, class: "dock-admin-item #{'active' if controller_name == 'profiles'}", role: "menuitem" do %>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span>Perfiles y Permisos</span>
+                  <% end %>
+
+                  <%= link_to departments_path, class: "dock-admin-item #{'active' if controller_name == 'departments'}", role: "menuitem" do %>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                    <span>Departamentos y Sedes</span>
+                  <% end %>
+
+                  <%= link_to edit_chat_settings_path, class: "dock-admin-item #{'active' if controller_name == 'chat_settings'}", role: "menuitem" do %>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="12" y1="7" x2="12" y2="13"/></svg>
+                    <span>Configuración de Chat</span>
+                  <% end %>
+
+                  <%= link_to edit_visualhub_settings_path, class: "dock-admin-item #{'active' if controller_name == 'visualhub_settings'}", role: "menuitem" do %>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                    <span>VisualHub & Accesibilidad</span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+
+            <%= link_to user_profile_path, class: "dock-item #{'active' if controller_name == 'profiles' && action_name == 'show'}", title: "Mi Perfil: #{current_user.full_name}" do %>
+              <div class="user-avatar-xs">
+                <%= current_user.first_name&.first || current_user.email_address.first.upcase %>
+              </div>
+              <span class="dock-label">Perfil</span>
+            <% end %>
+          </div>
+        </nav>
       </div>
     <% else %>
       <!-- Unauthenticated Layout (e.g. Login) -->
