@@ -1,0 +1,195 @@
+<% content_for :title, "Configuración de VisualHub & Accesibilidad - OpenITIL" %>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Configuración de VisualHub & Accesibilidad</h1>
+    <p class="page-subtitle">Personaliza la identidad visual, paleta de colores, branding y la suite de accesibilidad WCAG 2.2 AA / AAA</p>
+  </div>
+  <div style="display: flex; gap: 0.5rem;">
+    <%= link_to root_path, class: "btn btn-secondary btn-sm" do %>
+      <span>← Volver al Dashboard</span>
+    <% end %>
+  </div>
+</div>
+
+<%= form_with model: @setting, url: visualhub_settings_path, method: :patch, local: true do |f| %>
+  <% if @setting.errors.any? %>
+    <div class="alert alert-alert" style="margin-bottom: 1.5rem;">
+      <strong>Por favor corrige los siguientes inconvenientes:</strong>
+      <ul style="margin-left: 1.25rem; margin-top: 0.5rem;">
+        <% @setting.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+
+    <!-- 1. Identidad Corporativa y Branding -->
+    <div class="card">
+      <div class="card-header" style="display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <h2 class="card-title" style="font-size: 1.05rem;">Identidad Corporativa & Branding</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <%= f.label :app_name, "Nombre de la Aplicación", class: "form-label" %>
+          <%= f.text_field :app_name, class: "form-control", placeholder: "OpenITIL" %>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Nombre mostrado en la barra de navegación, títulos y correos.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :app_subtitle, "Subtítulo Institucional", class: "form-label" %>
+          <%= f.text_field :app_subtitle, class: "form-control", placeholder: "Gestión de Servicios y Activos TI" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :logo_url, "URL de Logotipo Personalizado (Opcional)", class: "form-label" %>
+          <%= f.text_field :logo_url, class: "form-control", placeholder: "/logo.svg o URL https://" %>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Si se deja vacío, se utilizará el icono vectorial predeterminado de OpenITIL.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :login_title, "Título en Pantalla de Login", class: "form-label" %>
+          <%= f.text_field :login_title, class: "form-control", placeholder: "Iniciar Sesión en OpenITIL" %>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :footer_text, "Texto de Pie de Página", class: "form-label" %>
+          <%= f.text_field :footer_text, class: "form-control" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Paleta de Colores y Temas -->
+    <div class="card">
+      <div class="card-header" style="display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        <h2 class="card-title" style="font-size: 1.05rem;">Paleta de Colores & Temas</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <%= f.label :primary_color, "Color Primario de la Interfaz", class: "form-label" %>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <%= f.color_field :primary_color, id: "setting_primary_color", style: "width: 44px; height: 38px; border: 1px solid var(--slate-300); border-radius: var(--radius-sm); cursor: pointer; padding: 2px;" %>
+            <input type="text" class="form-control" style="max-width: 120px; font-family: monospace;" value="<%= @setting.primary_color %>" oninput="document.getElementById('setting_primary_color').value = this.value">
+          </div>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Color corporativo para botones principales, enlaces y focos activos.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :accent_color, "Color de Acento", class: "form-label" %>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <%= f.color_field :accent_color, id: "setting_accent_color", style: "width: 44px; height: 38px; border: 1px solid var(--slate-300); border-radius: var(--radius-sm); cursor: pointer; padding: 2px;" %>
+            <input type="text" class="form-control" style="max-width: 120px; font-family: monospace;" value="<%= @setting.accent_color %>" oninput="document.getElementById('setting_accent_color').value = this.value">
+          </div>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Color para elementos secundarios, insignias y resaltados.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :sidebar_bg, "Fondo de Barra Lateral", class: "form-label" %>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <%= f.color_field :sidebar_bg, id: "setting_sidebar_bg", style: "width: 44px; height: 38px; border: 1px solid var(--slate-300); border-radius: var(--radius-sm); cursor: pointer; padding: 2px;" %>
+            <input type="text" class="form-control" style="max-width: 120px; font-family: monospace;" value="<%= @setting.sidebar_bg %>" oninput="document.getElementById('setting_sidebar_bg').value = this.value">
+          </div>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Color base del menú lateral de navegación.</small>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--slate-200);">
+          <label class="form-check-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <%= f.check_box :default_dark_mode, class: "form-check-input" %>
+            <span style="font-weight: 600; color: var(--slate-800);">Modo Oscuro por Defecto para Nuevos Usuarios</span>
+          </label>
+          <small style="display: block; color: var(--slate-500); font-size: 0.775rem; margin-top: 4px; margin-left: 26px;">Cada usuario puede alternar entre modo claro y oscuro desde el botón de la interfaz.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Suite de Accesibilidad WCAG 2.2 -->
+    <div class="card">
+      <div class="card-header" style="display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="m4.93 4.93 4.24 4.24"/><path d="M12 12v6"/><path d="m8 14 4-2 4 2"/></svg>
+        <h2 class="card-title" style="font-size: 1.05rem;">Suite de Accesibilidad WCAG 2.2 AA / AAA</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-check-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <%= f.check_box :accessibility_enabled, class: "form-check-input" %>
+            <span style="font-weight: 600; color: var(--slate-800);">Habilitar Botón Flotante y Panel de Accesibilidad</span>
+          </label>
+          <small style="display: block; color: var(--slate-500); font-size: 0.775rem; margin-top: 4px; margin-left: 26px;">Muestra el asistente accesible flotante para todos los usuarios del sistema.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :widget_position, "Posición del Widget en Pantalla", class: "form-label" %>
+          <%= f.select :widget_position, [
+            ["Inferior Derecha (Predeterminada)", "bottom-right"],
+            ["Inferior Izquierda", "bottom-left"],
+            ["Superior Derecha", "top-right"],
+            ["Superior Izquierda", "top-left"]
+          ], {}, class: "form-select" %>
+        </div>
+
+        <div class="form-group">
+          <label class="form-check-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <%= f.check_box :keyboard_shortcuts_enabled, class: "form-check-input" %>
+            <span style="font-weight: 600; color: var(--slate-800);">Habilitar Atajos de Teclado Globales</span>
+          </label>
+          <div style="margin-left: 26px; margin-top: 6px; font-size: 0.8rem; color: var(--slate-600);">
+            <code>Alt + A</code>: Abrir/Cerrar panel de accesibilidad<br>
+            <code>Alt + R</code>: Iniciar o pausar lectura de voz (TTS)<br>
+            <code>Escape</code>: Parada de emergencia de síntesis de voz
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Text-to-Speech (TTS) & Síntesis de Voz Regional -->
+    <div class="card">
+      <div class="card-header" style="display: flex; align-items: center; gap: 8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <h2 class="card-title" style="font-size: 1.05rem;">Lector de Pantalla por Voz (TTS)</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-check-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <%= f.check_box :tts_enabled, class: "form-check-input" %>
+            <span style="font-weight: 600; color: var(--slate-800);">Activar Asistente de Voz (Web Speech API)</span>
+          </label>
+          <small style="display: block; color: var(--slate-500); font-size: 0.775rem; margin-top: 4px; margin-left: 26px;">Sintetiza texto seleccionado, resúmenes de tickets y artículos de ayuda sin costos externos.</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :tts_default_lang, "Dialecto Regional por Defecto", class: "form-label" %>
+          <%= f.select :tts_default_lang, VisualhubSetting::TTS_LANGUAGES.map { |code, name| [name, code] }, {}, class: "form-select" %>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Asegura pronunciación regional adecuada (evita forzar dialectos extranjeros).</small>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :tts_speed, "Velocidad de Lectura por Defecto", class: "form-label" %>
+          <%= f.select :tts_speed, [
+            ["0.75x (Pausado)", 0.75],
+            ["1.0x (Normal)", 1.0],
+            ["1.25x (Rápido)", 1.25],
+            ["1.5x (Muy Rápido)", 1.5]
+          ], {}, class: "form-select" %>
+        </div>
+
+        <div class="form-group">
+          <label class="form-check-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <%= f.check_box :point_to_read, class: "form-check-input" %>
+            <span style="font-weight: 600; color: var(--slate-800);">Habilitar Modo "Apuntar para Leer" (Point-to-Read)</span>
+          </label>
+          <small style="display: block; color: var(--slate-500); font-size: 0.775rem; margin-top: 4px; margin-left: 26px;">Vocaliza párrafos al pasar el cursor o hacer foco por teclado tras una pausa breve.</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 1rem; padding: 1.25rem 0; border-top: 1px solid var(--slate-200);">
+    <%= link_to "Cancelar", root_path, class: "btn btn-secondary" %>
+    <%= f.submit "Guardar Configuración de VisualHub", class: "btn btn-primary" %>
+  </div>
+<% end %>

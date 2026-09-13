@@ -63,6 +63,22 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 - **Feature & Privacy Toggles**: One-click administrative control over presence indicators, typing status, read receipts (double check), and notification sounds.
 - **ITSM Policy Management**: Fine-tune message-to-ticket conversion options and enable/disable automated notifications for assignments, resolutions, comments, and internal notes.
 
+### 8. Native VisualHub & Accessibility Suite (WCAG 2.2 AA / AAA)
+- **Assistive Accessibility Widget**: Floating launcher with keyboard shortcut (`Alt + A`) for instant access to visual accommodations.
+- **Regional Text-to-Speech (TTS) Engine**: Built on the native Web Speech API with regional dialect resolvers (Spanish, English, Portuguese, French), adjustable reading speeds (0.75x to 1.5x), and a floating mini audio player.
+- **Point-to-Read & Smart Content Fallback**: Automatically voices paragraphs upon cursor hover or focus, with contextual fallback reading for ticket cards and knowledge base articles.
+- **Visual Filters & Contrast Controls**:
+  - One-click Dark Mode / Light Mode toggle with instant CSS variable updates.
+  - High Contrast mode complying with WCAG AAA contrast ratios.
+  - Monochromatic (Grayscale) filter.
+  - Media-Safe Invert filter protecting images, photos, and video elements from colour inversion.
+- **Reading Guides & Ergonomics**:
+  - Horizontal reading tracker line that follows the cursor across the screen.
+  - High-visibility focus ring for accessible keyboard navigation.
+  - Large contrast cursor option.
+  - Dyslexia-friendly typography and adjustable text/line spacing.
+- **Administrative Theming & Branding**: Centralized administration console (`/visualhub_settings`) to customize system branding (application name, logo, login greeting), primary and accent color palettes, and default accessibility preferences.
+
 ---
 
 ## Technology Stack
@@ -87,8 +103,8 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/aalexanderdev/ITIL.git
-   cd ITIL
+   git clone https://github.com/aalexanderdev/OpenITIL.git
+   cd OpenITIL
    ```
 
 2. **Install Ruby dependencies**:
@@ -137,8 +153,8 @@ bin/rails test
 
 All tests should pass with 0 failures and 0 errors:
 ```text
-Running 64 tests in parallel using 12 processes
-64 runs, 279 assertions, 0 failures, 0 errors, 0 skips
+Running 72 tests in parallel using 12 processes
+72 runs, 319 assertions, 0 failures, 0 errors, 0 skips
 ```
 
 ---
@@ -149,7 +165,8 @@ Running 64 tests in parallel using 12 processes
 ├── app/
 │   ├── assets/stylesheets/
 │   │   ├── application.css                 # Core design system
-│   │   └── chat.css                        # HelpdeskChat styles & variables
+│   │   ├── chat.css                        # HelpdeskChat styles & variables
+│   │   └── visualhub.css                   # WCAG 2.2 accessibility & visual tokens
 │   ├── controllers/
 │   │   ├── assets_controller.rb            # ITAM / CMDB management
 │   │   ├── chat/                           # Native HelpdeskChat controllers
@@ -168,9 +185,11 @@ Running 64 tests in parallel using 12 processes
 │   │   ├── ticket_updates_controller.rb    # Timeline follow-ups & tasks
 │   │   ├── tickets_controller.rb           # Helpdesk & ITIL workflow
 │   │   ├── user_profiles_controller.rb     # Self-service "My Profile" & password update
-│   │   └── users_controller.rb             # User directory & profile assignment
+│   │   ├── users_controller.rb             # User directory & profile assignment
+│   │   └── visualhub_settings_controller.rb# VisualHub & WCAG 2.2 administration
 │   ├── javascript/
-│   │   └── chat.js                         # HelpdeskChat UI engine & event loop
+│   │   ├── chat.js                         # HelpdeskChat UI engine & event loop
+│   │   └── visualhub.js                    # WCAG 2.2 speech synthesis & assistive engine
 │   ├── models/
 │   │   ├── asset.rb                        # Hardware asset model
 │   │   ├── chat_conversation.rb            # Direct, group, and self threads
@@ -180,14 +199,15 @@ Running 64 tests in parallel using 12 processes
 │   │   ├── profile.rb                      # Granular RBAC permission matrix model
 │   │   ├── ticket.rb                       # Ticket with ITIL matrix & SLA
 │   │   ├── ticket_update.rb                # Timeline updates & notice hooks
-│   │   └── user.rb                         # User model with profile delegation
-│   └── views/                              # Responsive view templates (profiles, user_profiles, tickets...)
+│   │   ├── user.rb                         # User model with profile delegation
+│   │   └── visualhub_setting.rb            # VisualHub & accessibility configuration
+│   └── views/                              # Responsive view templates (visualhub, profiles, tickets...)
 ├── config/                                 # Routes, environments & Solid config
 ├── db/
 │   ├── migrate/                            # Active Record migrations
 │   ├── schema.rb                           # Database schema
 │   └── seeds.rb                            # Sample ITSM & CMDB dataset
-└── test/                                   # Model and integration tests (64 tests)
+└── test/                                   # Model and integration tests (72 tests)
 ```
 
 ---

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_12_200001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_150001) do
   create_table "assets", force: :cascade do |t|
     t.string "asset_tag", null: false
     t.string "asset_type", default: "computer", null: false
@@ -261,6 +261,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_12_200001) do
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["profile_id"], name: "index_users_on_profile_id"
     t.index ["role"], name: "index_users_on_role"
+  end
+
+  create_table "visualhub_settings", force: :cascade do |t|
+    t.string "accent_color", default: "#06b6d4", null: false
+    t.boolean "accessibility_enabled", default: true, null: false
+    t.string "app_name", default: "OpenITIL", null: false
+    t.string "app_subtitle", default: "Gestión de Servicios y Activos TI"
+    t.datetime "created_at", null: false
+    t.boolean "default_dark_mode", default: false, null: false
+    t.string "footer_text", default: "OpenITIL - Mesa de Ayuda y Gestión de Servicios ITIL"
+    t.boolean "high_contrast_default", default: false, null: false
+    t.boolean "keyboard_shortcuts_enabled", default: true, null: false
+    t.string "login_title", default: "Iniciar Sesión en OpenITIL"
+    t.string "logo_url"
+    t.boolean "point_to_read", default: true, null: false
+    t.string "primary_color", default: "#4f46e5", null: false
+    t.boolean "readable_font_default", default: false, null: false
+    t.string "sidebar_bg", default: "#0f172a", null: false
+    t.string "tts_default_lang", default: "es-ES", null: false
+    t.boolean "tts_enabled", default: true, null: false
+    t.float "tts_speed", default: 1.0, null: false
+    t.datetime "updated_at", null: false
+    t.string "widget_position", default: "bottom-right", null: false
   end
 
   add_foreign_key "assets", "departments"

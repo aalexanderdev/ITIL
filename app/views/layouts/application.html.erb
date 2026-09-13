@@ -1,27 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <title><%= content_for(:title) || "OpenITIL - Gestión de Servicios y Activos TI" %></title>
+    <% vh_setting = VisualhubSetting.current %>
+    <title><%= content_for(:title) || "#{vh_setting.app_name} - #{vh_setting.app_subtitle}" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="OpenITIL">
+    <meta name="application-name" content="<%= vh_setting.app_name %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
+    <!-- VisualHub Dynamic Theme Variables -->
+    <style id="vh-dynamic-theme">
+      :root {
+        --primary: <%= vh_setting.primary_color %>;
+        --primary-hover: <%= vh_setting.primary_color %>dd;
+        --vh-primary: <%= vh_setting.primary_color %>;
+        --vh-accent: <%= vh_setting.accent_color %>;
+        --vh-sidebar-bg: <%= vh_setting.sidebar_bg %>;
+      }
+      .app-sidebar {
+        background-color: <%= vh_setting.sidebar_bg %> !important;
+      }
+    </style>
+
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "visualhub", "data-turbo-track": "reload" %>
     <% if authenticated? %>
       <%= stylesheet_link_tag "chat", "data-turbo-track": "reload" %>
     <% end %>
 
     <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "visualhub", defer: true %>
 
     <% if authenticated? %>
       <%= javascript_include_tag "chat", defer: true %>
     <% end %>
   </head>
-
 
   <body>
     <% if authenticated? %>
@@ -30,12 +46,16 @@
         <aside class="app-sidebar">
           <div class="sidebar-header">
             <div class="brand-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-              </svg>
+              <% if vh_setting.logo_url.present? %>
+                <img src="<%= vh_setting.logo_url %>" alt="Logo" width="22" height="22" style="object-fit: contain;">
+              <% else %>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+              <% end %>
             </div>
             <div>
-              <span class="brand-text">OpenITIL</span>
+              <span class="brand-text"><%= vh_setting.app_name %></span>
               <span class="brand-tag">ITSM</span>
             </div>
           </div>
@@ -101,6 +121,11 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="12" y1="7" x2="12" y2="13"/></svg>
                 <span>Configuración de Chat</span>
               <% end %>
+
+              <%= link_to edit_visualhub_settings_path, class: "nav-item #{'active' if controller_name == 'visualhub_settings'}" do %>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+                <span>VisualHub & Accesibilidad</span>
+              <% end %>
             <% end %>
           </nav>
 
@@ -129,6 +154,11 @@
             </div>
 
             <div class="header-actions">
+              <!-- Quick Dark Mode Switch -->
+              <button type="button" class="btn btn-secondary btn-sm" onclick="window.toggleOpenITILDarkMode()" title="Alternar Modo Oscuro / Claro" aria-label="Alternar Modo Oscuro" style="padding: 6px 10px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              </button>
+
               <%= link_to new_ticket_path, class: "btn btn-primary btn-sm" do %>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 <span>Nuevo Ticket</span>
@@ -166,6 +196,117 @@
         <div class="auth-card">
           <%= yield %>
         </div>
+      </div>
+    <% end %>
+
+    <!-- VisualHub Reading Guide Line -->
+    <div id="vh-reading-guide" aria-hidden="true"></div>
+
+    <!-- VisualHub Floating Trigger Button & Accessibility Panel -->
+    <% if vh_setting.accessibility_enabled %>
+      <button type="button" id="vh-a11y-trigger" class="vh-trigger-btn vh-pos-<%= vh_setting.widget_position %>" aria-label="Menú de Accesibilidad (Alt + A)" title="Accesibilidad y Ayudas Visuales (Alt + A)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="m4.93 4.93 4.24 4.24"/><path d="M12 12v6"/><path d="m8 14 4-2 4 2"/></svg>
+      </button>
+
+      <!-- VisualHub Accessibility Modal -->
+      <div id="vh-a11y-modal" role="dialog" aria-modal="true" aria-labelledby="vh-modal-title">
+        <div class="vh-a11y-panel">
+          <div class="vh-panel-header">
+            <div class="vh-panel-title" id="vh-modal-title">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 12v6"/><path d="m8 14 4-2 4 2"/></svg>
+              <span>Suite de Accesibilidad WCAG 2.2</span>
+            </div>
+            <button type="button" id="vh-a11y-close" class="vh-panel-close" aria-label="Cerrar panel de accesibilidad">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+
+          <div class="vh-panel-body">
+            <!-- 1. Text to speech -->
+            <div class="vh-section-title">Lector de Pantalla & Voz (TTS)</div>
+            <div class="vh-features-grid">
+              <button type="button" class="vh-feature-btn" id="vh-speak-all" aria-label="Leer contenido de la pantalla">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                <span>Leer Pantalla (Alt+R)</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="point-to-read" aria-label="Vocalizar texto al apuntar con el cursor">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+                <span>Apuntar para Leer</span>
+              </button>
+            </div>
+
+            <!-- 2. Filtros de color y contraste -->
+            <div class="vh-section-title">Visibilidad & Contraste</div>
+            <div class="vh-features-grid">
+              <button type="button" class="vh-feature-btn" data-vh-action="dark-mode" aria-label="Alternar Modo Oscuro">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <span>Modo Oscuro</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="high-contrast" aria-label="Alternar Alto Contraste">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v20a10 10 0 0 0 0-20z"/></svg>
+                <span>Alto Contraste</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="grayscale" aria-label="Alternar Escala de Grises">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                <span>Monocromático</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="invert" aria-label="Invertir Colores">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <span>Invertir Colores</span>
+              </button>
+            </div>
+
+            <!-- 3. Tipografia y lectura -->
+            <div class="vh-section-title">Tipografía & Guías de Lectura</div>
+            <div class="vh-features-grid">
+              <button type="button" class="vh-feature-btn" data-vh-action="large-text" aria-label="Texto Grande">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <span>Texto Grande (+15%)</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="extra-large-text" aria-label="Texto Extra Grande">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <span>Texto XXL (+30%)</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="line-spacing" aria-label="Mayor Espaciado de Líneas">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <span>Espaciado Amplio</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="readable-font" aria-label="Fuente Legible">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/></svg>
+                <span>Fuente Legible</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="reading-guide" aria-label="Guía de Lectura">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+                <span>Guía de Lectura</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="focus-ring" aria-label="Resaltar Enfoque">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 4"/></svg>
+                <span>Anillo de Foco</span>
+              </button>
+              <button type="button" class="vh-feature-btn" data-vh-action="large-cursor" aria-label="Cursor Grande">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 3 10 21 14 14 21 10 3 3"/></svg>
+                <span>Cursor Grande</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="vh-panel-footer">
+            <span style="color: var(--slate-500);">Atajo: <code>Alt + A</code></span>
+            <button type="button" id="vh-reset-all" class="btn btn-secondary btn-sm">Restablecer Todo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Mini Audio Player for Speech Synthesis -->
+      <div id="vh-a11y-player" role="region" aria-label="Reproductor de voz accesible">
+        <button type="button" id="vh-player-toggle" class="vh-player-btn" aria-label="Pausar o Reanudar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button type="button" id="vh-player-stop" class="vh-player-btn" aria-label="Detener lectura">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+        </button>
+        <button type="button" id="vh-player-speed" class="vh-player-speed" title="Cambiar velocidad de reproducción" aria-label="Velocidad de reproducción">1.0x</button>
+        <span class="vh-player-text" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.775rem;">Leyendo...</span>
       </div>
     <% end %>
   </body>

@@ -1,11 +1,16 @@
+<% vh = VisualhubSetting.current %>
 <div class="auth-header">
-  <div style="display: inline-flex; width: 48px; height: 48px; background: linear-gradient(135deg, #4f46e5, #06b6d4); border-radius: 12px; align-items: center; justify-content: center; color: #fff; box-shadow: 0 8px 16px rgba(79,70,229,0.35);">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-    </svg>
+  <div style="display: inline-flex; width: 48px; height: 48px; background: linear-gradient(135deg, var(--vh-primary, #4f46e5), var(--vh-accent, #06b6d4)); border-radius: 12px; align-items: center; justify-content: center; color: #fff; box-shadow: 0 8px 16px rgba(79,70,229,0.35);">
+    <% if vh.logo_url.present? %>
+      <img src="<%= vh.logo_url %>" alt="Logo" width="28" height="28" style="object-fit: contain;">
+    <% else %>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+      </svg>
+    <% end %>
   </div>
-  <h2 class="auth-title">Iniciar Sesión en OpenITIL</h2>
-  <p class="auth-subtitle">Gestión de Servicios e Inventario TI (CMDB / ITSM)</p>
+  <h2 class="auth-title"><%= vh.login_title %></h2>
+  <p class="auth-subtitle"><%= vh.app_subtitle %></p>
 </div>
 
 <% if flash[:alert] %>

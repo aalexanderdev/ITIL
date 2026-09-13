@@ -14,6 +14,7 @@ KbArticle.destroy_all
 TicketCategory.destroy_all
 User.destroy_all
 Profile.destroy_all if defined?(Profile)
+VisualhubSetting.destroy_all if defined?(VisualhubSetting)
 Department.destroy_all
 Location.destroy_all
 
@@ -393,6 +394,9 @@ KbArticle.create!(
   is_public: true,
   views_count: 65
 )
+
+puts "Inicializando configuración de VisualHub y Accesibilidad..."
+VisualhubSetting.current
 
 puts "¡Semillas cargadas exitosamente!"
 puts "Usuarios creados:"
