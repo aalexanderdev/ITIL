@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_150001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_160001) do
   create_table "assets", force: :cascade do |t|
     t.string "asset_tag", null: false
     t.string "asset_type", default: "computer", null: false
@@ -274,6 +274,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_150001) do
     t.boolean "high_contrast_default", default: false, null: false
     t.boolean "keyboard_shortcuts_enabled", default: true, null: false
     t.string "login_title", default: "Iniciar Sesión en OpenITIL"
+    t.string "logo_icon", default: "cube", null: false
     t.string "logo_url"
     t.boolean "point_to_read", default: true, null: false
     t.string "primary_color", default: "#4f46e5", null: false

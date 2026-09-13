@@ -47,7 +47,29 @@
         <div class="form-group">
           <%= f.label :logo_url, "URL de Logotipo Personalizado (Opcional)", class: "form-label" %>
           <%= f.text_field :logo_url, class: "form-control", placeholder: "/logo.svg o URL https://" %>
-          <small style="color: var(--slate-500); font-size: 0.775rem;">Si se deja vacío, se utilizará el icono vectorial predeterminado de OpenITIL.</small>
+          <small style="color: var(--slate-500); font-size: 0.775rem;">Si se suministra una imagen, tendrá prioridad sobre los iconos vectoriales inferiores.</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-weight: 600;">Icono Minimalista del Sistema</span>
+            <span style="font-size: 0.725rem; color: var(--slate-500); font-weight: normal;">Se activa si no hay URL de imagen</span>
+          </label>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 6px;">
+            <% VisualhubSetting::LOGO_ICONS.each do |key, meta| %>
+              <label class="logo-icon-card <%= 'selected' if @setting.logo_icon == key %>">
+                <%= f.radio_button :logo_icon, key, style: "display: none;" %>
+                <div class="logo-icon-card-preview">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <%= meta[:path].html_safe %>
+                  </svg>
+                </div>
+                <span style="font-size: 0.785rem; font-weight: 600; color: var(--slate-800); line-height: 1.2;"><%= meta[:name] %></span>
+                <span style="font-size: 0.675rem; color: var(--slate-500); line-height: 1.15;"><%= meta[:description] %></span>
+              </label>
+            <% end %>
+          </div>
         </div>
 
         <div class="form-group">

@@ -36,4 +36,22 @@ class VisualhubSettingTest < ActiveSupport::TestCase
     assert_includes css, "--vh-accent: #06b6d4;"
     assert_includes css, "--vh-sidebar-bg: #0f172a;"
   end
+
+  test "validates logo_icon inclusion" do
+    setting = VisualhubSetting.current
+    setting.logo_icon = "invalid_icon"
+    assert_not setting.valid?
+    assert_includes setting.errors[:logo_icon], "is not included in the list"
+
+    setting.logo_icon = "minimal_o"
+    assert setting.valid?
+  end
+
+  test "render_logo_svg renders valid svg markup" do
+    setting = VisualhubSetting.current
+    setting.logo_icon = "cube"
+    svg = setting.render_logo_svg(size: 24)
+    assert_includes svg, "<svg width=\"24\" height=\"24\""
+    assert_includes svg, "viewBox=\"0 0 24 24\""
+  end
 end

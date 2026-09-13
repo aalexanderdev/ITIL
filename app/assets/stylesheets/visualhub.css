@@ -474,3 +474,66 @@ html.vh-dark-mode .vh-panel-footer {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* VisualHub Logo Icon Card Selector */
+.logo-icon-card {
+  border: 2px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  cursor: pointer;
+  background: var(--slate-50);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.logo-icon-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.logo-icon-card:has(input:checked),
+.logo-icon-card.selected {
+  border-color: var(--primary) !important;
+  background: rgba(79, 70, 229, 0.07) !important;
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.logo-icon-card-preview {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--vh-primary, #4f46e5), var(--vh-accent, #06b6d4));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.logo-icon-card:hover .logo-icon-card-preview {
+  transform: scale(1.08);
+}
+
+html.vh-dark-mode .logo-icon-card {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+html.vh-dark-mode .logo-icon-card:has(input:checked),
+html.vh-dark-mode .logo-icon-card.selected {
+  background: rgba(79, 70, 229, 0.2) !important;
+  border-color: var(--primary) !important;
+}
+
+html.vh-dark-mode .logo-icon-card span {
+  color: #f8fafc;
+}
+

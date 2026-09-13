@@ -77,7 +77,7 @@ Unlike traditional PHP-based helpdesk interfaces, OpenITIL offers a clean, fast,
   - High-visibility focus ring for accessible keyboard navigation.
   - Large contrast cursor option.
   - Dyslexia-friendly typography and adjustable text/line spacing.
-- **Administrative Theming & Branding**: Centralized administration console (`/visualhub_settings`) to customize system branding (application name, logo, login greeting), primary and accent color palettes, and default accessibility preferences.
+- **Administrative Theming & Branding**: Centralized administration console (`/visualhub_settings`) to customize system branding (application name, custom logo URL, login greeting), primary and accent color palettes, default accessibility preferences, and a curated library of minimalist SVG icons (Isometric Cube, OpenITIL Ring, Service Layers, Security Shield, Network Topology, Command Terminal, Classic Sparkle).
 
 ### 9. OpenITIL Bottom Navigation Dock & Full-Width Workspace
 - **100% Horizontal Screen Utilization**: The traditional fixed sidebar is replaced with a centered, floating bottom dock, freeing up full horizontal screen real estate for ITSM data tables, incident management, and hardware CMDB trees.

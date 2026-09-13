@@ -47,13 +47,7 @@
           <div class="header-left">
             <%= link_to root_path, class: "header-brand", title: "#{vh_setting.app_name} - Ir al Panel de Control" do %>
               <div class="brand-icon">
-                <% if vh_setting.logo_url.present? %>
-                  <img src="<%= vh_setting.logo_url %>" alt="Logo" width="22" height="22" style="object-fit: contain;">
-                <% else %>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-                  </svg>
-                <% end %>
+                <%= render_brand_logo(vh_setting, size: 22) %>
               </div>
               <div class="brand-info">
                 <span class="brand-text"><%= vh_setting.app_name %></span>

@@ -25,7 +25,7 @@ class VisualhubSettingsController < ApplicationController
 
   def visualhub_setting_params
     params.require(:visualhub_setting).permit(
-      :app_name, :app_subtitle, :logo_url, :login_title, :footer_text,
+      :app_name, :app_subtitle, :logo_url, :logo_icon, :login_title, :footer_text,
       :primary_color, :accent_color, :sidebar_bg, :default_dark_mode,
       :accessibility_enabled, :widget_position, :tts_enabled, :tts_default_lang,
       :tts_speed, :point_to_read, :keyboard_shortcuts_enabled,

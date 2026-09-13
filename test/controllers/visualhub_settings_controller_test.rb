@@ -36,6 +36,7 @@ class VisualhubSettingsControllerTest < ActionDispatch::IntegrationTest
         app_name: "OpenITIL Enterprise",
         primary_color: "#10b981",
         accent_color: "#059669",
+        logo_icon: "minimal_o",
         widget_position: "bottom-left",
         tts_speed: 1.25,
         point_to_read: true
@@ -50,6 +51,7 @@ class VisualhubSettingsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "OpenITIL Enterprise", setting.app_name
     assert_equal "#10b981", setting.primary_color
     assert_equal "#059669", setting.accent_color
+    assert_equal "minimal_o", setting.logo_icon
     assert_equal "bottom-left", setting.widget_position
     assert_equal 1.25, setting.tts_speed
     assert setting.point_to_read?
