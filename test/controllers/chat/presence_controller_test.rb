@@ -3,6 +3,7 @@ require "test_helper"
 class Chat::PresenceControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = users(:user)
+    @admin = users(:admin)
   end
 
   test "heartbeat updates user presence" do
@@ -19,12 +20,13 @@ class Chat::PresenceControllerTest < ActionDispatch::IntegrationTest
 
   test "returns online users" do
     sign_in_as(@user)
-    ChatPresence.heartbeat_for(@user)
+    ChatPresence.heartbeat_for(@admin)
 
     get "/chat/ajax/presence", params: { action: "online_users" }
     assert_response :success
 
     json = JSON.parse(response.body)
-    assert_includes json["users"], @user.id
+    assert json["users"].any? { |u| u["id"] == @admin.id }
+    assert_includes json["online_users"], @admin.id
   end
 end

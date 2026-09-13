@@ -10,13 +10,20 @@ class ChatMessage < ApplicationRecord
   end
 
   def as_chat_json(current_user)
+    is_mine = (user_id == current_user.id)
+    ts = created_at.to_i
+    author_name = user&.full_name.presence || "Sistema"
+
     {
       id: id,
+      author: author_name,
+      user_name: author_name,
       users_id: user_id,
-      user_name: user&.full_name || "Sistema",
+      mine: is_mine,
+      is_own: is_mine,
       content: content,
-      date_creation: created_at.to_i,
-      is_own: (user_id == current_user.id),
+      date: ts,
+      date_creation: ts,
       link_url: link_url.presence,
       attachment: nil
     }

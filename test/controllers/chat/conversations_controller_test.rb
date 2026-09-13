@@ -6,44 +6,66 @@ class Chat::ConversationsControllerTest < ActionDispatch::IntegrationTest
     @user = users(:user)
   end
 
-  test "lists conversations and active users" do
+  test "lists conversations divided into featured, group and private" do
     sign_in_as(@user)
     get "/chat/ajax/conversations", params: { action: "list" }
     assert_response :success
 
     json = JSON.parse(response.body)
+    assert json["featured"].is_a?(Array)
+    assert json["group"].is_a?(Array)
+    assert json["private"].is_a?(Array)
     assert json["conversations"].is_a?(Array)
     assert json["users"].is_a?(Array)
   end
 
-  test "creates and finds private conversation" do
+  test "creates and finds private conversation using target_id" do
     sign_in_as(@user)
 
     # Initially none
-    get "/chat/ajax/conversations", params: { action: "find_private", target_user_id: @admin.id }
+    get "/chat/ajax/conversations", params: { action: "find_private", target_id: @admin.id }
     assert_response :success
     json = JSON.parse(response.body)
     assert_equal false, json["exists"]
+    assert_nil json["id"]
 
-    # Create private conversation
-    post "/chat/ajax/conversations", params: { action: "create_private", target_user_id: @admin.id }
+    # Create private conversation via target_id
+    post "/chat/ajax/conversations", params: { action: "create_private", target_id: @admin.id }
     assert_response :success
     json = JSON.parse(response.body)
     assert_equal true, json["success"]
-    conv_id = json["conversation_id"]
+    conv_id = json["id"]
     assert_not_nil conv_id
 
-    # Now find returns it
-    get "/chat/ajax/conversations", params: { action: "find_private", target_user_id: @admin.id }
+    # Now find returns it with id
+    get "/chat/ajax/conversations", params: { action: "find_private", target_id: @admin.id }
     assert_response :success
     json = JSON.parse(response.body)
     assert_equal true, json["exists"]
-    assert_equal conv_id, json["conversation_id"]
+    assert_equal conv_id, json["id"]
   end
 
-  test "searches users by name or email" do
+  test "toggles featured state of conversation" do
     sign_in_as(@user)
-    get "/chat/ajax/conversations", params: { action: "search_users", query: "admin" }
+    conv = ChatConversation.find_or_create_direct(@user, @admin)
+
+    post "/chat/ajax/conversations", params: { action: "toggle_featured", conversation_id: conv.id }
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal true, json["success"]
+    assert_equal true, json["featured"]
+
+    # Toggle off
+    post "/chat/ajax/conversations", params: { action: "toggle_featured", conversation_id: conv.id }
+    assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal true, json["success"]
+    assert_equal false, json["featured"]
+  end
+
+  test "searches users by term" do
+    sign_in_as(@user)
+    get "/chat/ajax/conversations", params: { action: "search_users", term: "admin" }
     assert_response :success
 
     json = JSON.parse(response.body)
