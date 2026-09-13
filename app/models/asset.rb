@@ -35,6 +35,7 @@ class Asset < ApplicationRecord
   def type_name
     ASSET_TYPES[asset_type] || asset_type.titleize
   end
+  alias_method :asset_type_name, :type_name
 
   def status_name
     STATUSES[status] || status.titleize

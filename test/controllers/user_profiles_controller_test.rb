@@ -10,12 +10,23 @@ class UserProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
   end
 
-  test "authenticated user can view their personal profile" do
+  test "authenticated user can view their personal profile with assigned assets" do
+    asset = Asset.create!(
+      name: "Laptop ThinkPad T14",
+      asset_type: "computer",
+      status: "in_use",
+      manufacturer: "Lenovo",
+      model: "T14 Gen 3",
+      user: @user
+    )
+
     sign_in_as(@user)
     get user_profile_path
     assert_response :success
     assert_select "h1", "Mi Perfil"
     assert_includes response.body, @user.email_address
+    assert_includes response.body, asset.name
+    assert_includes response.body, asset.type_name
   end
 
   test "authenticated user can edit and update their personal info" do
